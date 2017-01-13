@@ -1,0 +1,17 @@
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\bin\Debug\KinectWPF.exe.config
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\KinectWPF.csprojResolveAssemblyReference.cache
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\MainWindow.baml
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\MainWindow.g.cs
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\App.g.cs
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\KinectWPF_MarkupCompile.cache
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\KinectWPF.g.resources
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\KinectWPF.Properties.Resources.resources
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\KinectWPF.csproj.GenerateResource.Cache
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\bin\Debug\KinectWPF.exe
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\bin\Debug\KinectWPF.pdb
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\bin\Debug\Microsoft.Kinect.dll
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\bin\Debug\Microsoft.Kinect.Tools.dll
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\bin\Debug\Microsoft.Kinect.xml
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\bin\Debug\Microsoft.Kinect.Tools.xml
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\KinectWPF.exe
+c:\users\mcham\onedrive\documents\visual studio 2013\Projects\KinectWPF\KinectWPF\obj\Debug\KinectWPF.pdb
