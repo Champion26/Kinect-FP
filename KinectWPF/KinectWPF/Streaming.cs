@@ -61,6 +61,7 @@ namespace KinectWPF
             colourFrameReader = frameInUse.OpenReader();
             //set frame arrived event handler
             colourFrameReader.FrameArrived += colourFrameReader_FrameArrived;
+                        
         }
 
         

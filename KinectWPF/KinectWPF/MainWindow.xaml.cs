@@ -49,6 +49,59 @@ namespace KinectWPF
                 }
             }
         }
-               
+
+        #region Hand Preference 
+        private void btnRightHand_Click(object sender, RoutedEventArgs e)
+        {
+            handSet(Streaming.HandPreference.Right);        
+        }
+
+        private Button FindCorrespondingButton(Streaming.HandPreference hp)
+        {
+            if (hp == Streaming.HandPreference.Right)
+            {
+                return this.btnRightHand;
+            }
+
+            return this.btnLeftHand;
+        }
+
+        private List<Button> GetAllHandButtons()
+        {
+            List<Button> l = new List<Button>();
+
+            l.Add(btnLeftHand);
+            l.Add(btnRightHand);
+
+            return l;
+        }
+
+        private void handSet(Streaming.HandPreference hp)
+        {
+            Button btn = FindCorrespondingButton(hp);
+            
+             if (this.stream != null)
+            {
+                this.stream.hand = hp;
+            }
+
+             btn.Background = Brushes.Green;
+            
+             foreach (Button b in GetAllHandButtons())
+             {
+                 if (b != btn)
+                 {
+                     b.Background = Brushes.White;
+                 }
+             }
+          
+        }
+
+        private void btnLeft_Click(object sender, RoutedEventArgs e)
+        {
+            handSet(Streaming.HandPreference.Left);
+        }
+        #endregion
+
     }
 }

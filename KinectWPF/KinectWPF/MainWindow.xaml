@@ -5,6 +5,8 @@
     <Grid>
         <Image Name="camera" Margin="10,0,10,10" />
         <Canvas Name="canvas" Margin="10,0,10,10" />
+        <Button x:Name="btnLeftHand" Content="Left" Canvas.Left="42" Canvas.Top="931" Click="btnLeft_Click" Margin="36,911,1709,58"/>
+        <Button x:Name="btnRightHand" Content="Right" Canvas.Left="194" Canvas.Top="931" Click="btnRightHand_Click" Margin="230,911,1515,58"/>
         <Button Content="Start Analysis" HorizontalAlignment="Left" Margin="1686,911,0,0" VerticalAlignment="Top" Width="171" Height="80" Click="btnAnalysis_Click"/>
     </Grid>
 </Window>

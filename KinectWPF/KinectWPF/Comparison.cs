@@ -32,8 +32,6 @@ namespace KinectWPF
         private ComparisonType _comparisonType;
         private Streaming stream;
 
-        private List<Tolerance> shoulderTolerances;
-
         public Joint JointA
         {
             get
@@ -120,24 +118,10 @@ namespace KinectWPF
             {
                 this.JointB = jB;
             }
-            shoulderTolerances = new List<Tolerance>();
-            GenerateTolerances();
-
+           
         }
 
-        private void GenerateTolerances()
-        {
-
-            Tolerance shoulderValid = new Tolerance(45, 25, Brushes.Green);
-            Tolerance shoulderAcceptable =  new Tolerance(55, 5, Brushes.Yellow);
-            Tolerance shoulderInvalid =  new Tolerance(70, 0, Brushes.Red);
-
-            shoulderTolerances.Add(shoulderValid);
-            shoulderTolerances.Add(shoulderAcceptable);
-            shoulderTolerances.Add(shoulderInvalid);
-
-
-        }
+      
 
         private int CalcJointValue(string jointName)
         {
@@ -273,7 +257,7 @@ namespace KinectWPF
         private double GetAngleFromOpposite(double opposite,
                                             double hypotenuse)
         {
-            return Math.Asin(opposite / hypotenuse) * 180/Math.PI;
+            return Math.Round( Math.Asin(opposite / hypotenuse) * 180/Math.PI );
         }
 
         private Brush MainElbowAngleCheck(Joint shoulder,
@@ -297,20 +281,15 @@ namespace KinectWPF
             Brush br = Brushes.Green;
 
 
-            if (Math.Round(shoulderAngle) + Math.Round(elbowAngle) == 90)
+            if (shoulderAngle + elbowAngle == 90)
             {
                 //make sure angle values add up
 
                 //check shoulder angle 
-                
-                foreach (Tolerance tl in shoulderTolerances)
-                {
-                    if (shoulderAngle > tl.lowerTolerance && shoulderAngle < tl.upperTolerance)
-                    {
-                        br = tl.colour;
-                        break;
-                    }
-                }
+
+                ToleranceList tl = new ToleranceList(ToleranceList.ToleranceListType.DominantShoulder);
+
+                br = tl.CompareValueAgainstTolerances(shoulderAngle);
 
 
             }
@@ -344,25 +323,19 @@ namespace KinectWPF
               
         public Brush Compare()
         {
-
-            if (this.comparisonType != null)
-            {
-                if (this.comparisonType == ComparisonType.ShoulderToElbow)
-                {
-                    return ShoulderElbowComparison();
-                }
-                else if (this.comparisonType == ComparisonType.ElbowToWrist)
-                {
-                    //return ElbowWristComparison();
-                }
-                else
-                {
-                    return Brushes.Green;
-                }
-            }
-               
-            return Brushes.Green;
             
+            switch (this.comparisonType)
+            {
+                case ComparisonType.ShoulderToElbow:
+                    return ShoulderElbowComparison();
+                    break;
+                case ComparisonType.ElbowToWrist:
+                    //return ElbowWristComparison();
+                    break;
+     
+            }
+
+            return Brushes.Green;
 
 
         }
