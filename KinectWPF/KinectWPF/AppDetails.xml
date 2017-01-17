@@ -1,11 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ToleranceValues>
-  <DominantShoulder>
-    <Valid UpperLimit="45" LowerLimit ="25" Colour="Green"> 
-    </Valid>
-    <Acceptable UpperLimit="55" LowerLimit ="5" Colour="Yellow">
-    </Acceptable>
-    <Invalid UpperLimit="70" LowerLimit ="0" Colour="Red">
-    </Invalid>
-  </DominantShoulder>
-</ToleranceValues>
+<AppDetails>
+  <Comparisons>
+    <Comparison JointA="DominantShoulder" JointB="DominantElbow" Comparison="Over"></Comparison>
+    <Comparison JointA="DominantElbow" JointB="DominantWrist" Comparison="Over"></Comparison>
+  </Comparisons>
+  <Tolerances>
+    <Tolerance JointA="DominantShoulder" JointB="DominantElbow">
+      <SubTolerance UpperLimit="45" LowerLimit ="25" Colour="Green"></SubTolerance>
+      <SubTolerance UpperLimit="55" LowerLimit ="5" Colour="Yellow"></SubTolerance>
+      <SubTolerance UpperLimit="70" LowerLimit ="0" Colour="Red"></SubTolerance>
+    </Tolerance>
+  </Tolerances>
+</AppDetails>
