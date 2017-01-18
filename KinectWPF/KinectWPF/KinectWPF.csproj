@@ -62,9 +62,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Comparison.cs" />
+    <Compile Include="ComparisonRule.cs" />
+    <Compile Include="Generate.cs" />
     <Compile Include="Streaming.cs" />
     <Compile Include="Tolerance.cs" />
-    <Compile Include="ToleranceList.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -108,6 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="AppDetails.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="DumpClass.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -44,6 +44,8 @@ namespace KinectWPF
 
         System.Windows.Controls.Label window;
 
+        private Generate generate;
+
         #region Image Streaming
 
         public void FillImageFromSensor()
@@ -78,6 +80,10 @@ namespace KinectWPF
                 this.camera = i;
             }
 
+            generate = new Generate();
+
+            generate.GetFromXml();
+
             if (canvas != null)
             {
 
@@ -91,7 +97,6 @@ namespace KinectWPF
                     {
                         //start image fill
                         FillImageFromSensor();
-
                     }
                     else
                     {
@@ -220,9 +225,6 @@ namespace KinectWPF
                             //draw Joints
                             DrawJoints(drawJoints);
 
-
-
-
                             //draw centre of body
                             DrawBone(body.Joints[JointType.Head], body.Joints[JointType.Neck]);
                             DrawBone(body.Joints[JointType.Neck], body.Joints[JointType.SpineShoulder]);
@@ -243,7 +245,6 @@ namespace KinectWPF
                             DrawBone(body.Joints[JointType.ElbowLeft], body.Joints[JointType.WristLeft]);
                             DrawBone(body.Joints[JointType.WristLeft], body.Joints[JointType.HandLeft]);
                             DrawBone(body.Joints[JointType.HandLeft], body.Joints[JointType.HandTipLeft]);
-
                        
                         }
 
@@ -260,30 +261,47 @@ namespace KinectWPF
 
             CameraSpacePoint jointPosition = joint.Position;
             ColorSpacePoint colorPoint = sensor.CoordinateMapper.MapCameraPointToColorSpace(jointPosition);
-
+            
             return colorPoint;
 
         }
 
+        private bool InfinityCoordinateCheck(ColorSpacePoint csp)
+        {
+            bool r = false;
+
+            if (double.IsInfinity(csp.X) || double.IsInfinity(csp.Y))
+            {
+                r = true;
+            }
+
+            return r;
+        }
+
         private void DrawBone(Joint first, Joint second)
         {
+
             Line line = new Line();
-            
-            
-            line.X1 = GetXandYColourPoint(first).X;
-            line.X2 = GetXandYColourPoint(second).X;
-            line.Y1 = GetXandYColourPoint(first).Y;
-            line.Y2 = GetXandYColourPoint(second).Y;
 
-            line.StrokeThickness = 2;
+            ColorSpacePoint fcp = GetXandYColourPoint(first);
+            ColorSpacePoint scp = GetXandYColourPoint(second);
 
-            List<Joint> jointList = new List<Joint>();
-            jointList.Add(first);
-            jointList.Add(second);
+            if (!(InfinityCoordinateCheck(fcp) && InfinityCoordinateCheck(scp)))
+            {
 
-            line.Stroke = ComparisonCheck(jointList);
 
-            canvas.Children.Add(line);
+                line.X1 = fcp.X;
+                line.X2 = scp.X;
+                line.Y1 = fcp.Y;
+                line.Y2 = scp.Y;
+
+                line.StrokeThickness = 2;
+
+                line.Stroke = ComparisonCheck(first, second);
+
+                canvas.Children.Add(line);
+
+            }
 
         }
 
@@ -322,33 +340,13 @@ namespace KinectWPF
 
         #region Coordinate Comparison
 
-        private Brush ComparisonCheck(List<Joint> joints)
+        private Brush ComparisonCheck(Joint JointA,
+                                      Joint JointB)
         {
-            bool comparisonNeeded = false;
-            foreach (Joint joint in joints)
-            {
-                if (joint.JointType.Equals(JointType.ElbowLeft) ||
-                    joint.JointType.Equals(JointType.ElbowRight))
-                {
-                    comparisonNeeded = true;
-                    break;
-                }
-            }
 
-            if (comparisonNeeded)
-            {
-                Comparison comp = new Comparison(this,
-                                                 joints[0],
-                                                 joints[1]);
+            Comparison c = new Comparison(this.generate, JointA, JointB, this);
 
-                comp.CalculateComparisonType();
-                return comp.Compare();
-            }
-            else
-            {
-                return Brushes.Green;
-            }
-            
+            return c.RunComparison(ref hand);
                        
         }
 

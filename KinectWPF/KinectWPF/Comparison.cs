@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.Kinect;
 using System.Windows.Media;
 using System.Windows;
@@ -14,356 +13,136 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
-using System.Drawing;
-
-
+using System.Xml;
+using System.Xml.Linq;
 
 namespace KinectWPF
 {
     class Comparison
     {
+
+        private Generate gn;
         private Joint _jointA;
         private Joint _jointB;
-        private ComparisonType _comparisonType;
-        private Streaming stream;
+        private Streaming _stream;
 
         public Joint JointA
         {
-            get
-            {
-                return _jointA;
-            }
-            set
-            {
-                _jointA = value;
-            }
+          get
+          {
+              return _jointA;
+          }
         }
 
         public Joint JointB
         {
-            get
-            {
-                return _jointB;
-            }
-            set
-            {
-                _jointB = value;
-            }
+          get
+          {
+              return _jointB;
+          }
         }
 
-        public ComparisonType comparisonType
+        public Streaming Stream
         {
             get
             {
-                return _comparisonType;
-            }
-            set{
-                _comparisonType = value;
+                return _stream;
             }
         }
 
-        private Brush validColour
+        public Comparison(Generate g,
+                          Joint ja,
+                          Joint jb,
+                          Streaming s)
         {
-            get
-            {
-                return Brushes.Green;
-            }
+            this._stream = s;
+            this.gn = g;
+            this._jointA = ja;
+            this._jointB = jb;
         }
 
-        private Brush toleranceColour
+        private Streaming.HandPreference DetermineOppositeHand(Streaming.HandPreference hp)
         {
-            get
-            {
-                return Brushes.Yellow;
-            }
+          if (hp == Streaming.HandPreference.Right)
+          {
+              return Streaming.HandPreference.Left;
+          }
+
+          return Streaming.HandPreference.Right;
         }
 
-        private Brush invalidColour
+        private void FindAndReplaceStr(ref string searchString,
+                                      string criteriaString,
+                                      string replaceString)
         {
-            get
-            {
-                return Brushes.Red;
-            }
+            if (searchString.Contains(criteriaString))
+              {
+                searchString =  searchString.Replace(criteriaString, replaceString);
+              }
         }
 
-        public List<Joint> getJointList()
+        private void ReplaceDominantAndPassiveStrings(ref string searchString,
+                                                      string dominantStringReplace,
+                                                      string passiveStringReplace)
         {
-            List<Joint> joints = new List<Joint>();
-
-            joints.Add(JointA);
-            joints.Add(JointB);
-
-            return joints;
-
+            FindAndReplaceStr(ref searchString, "Dominant", dominantStringReplace);
+            FindAndReplaceStr(ref searchString, "Passive", passiveStringReplace);
         }
 
-        public Comparison(Streaming s,
-                          Joint jA,
-                          Joint jB)
+        public Brush RunComparison(ref Streaming.HandPreference hp)
         {
-            if (s != null)
+          Brush br = Brushes.Green;
+
+          string domHand = hp.ToString();
+          string pasHand = (hp == Streaming.HandPreference.Right) ? Streaming.HandPreference.Left.ToString() : Streaming.HandPreference.Right.ToString();
+
+          ComparisonRule emptyCr = new ComparisonRule(null, null, ComparisonRule.ComparisonType.Over);
+
+          List<ComparisonRule> cList = emptyCr.CloneComparisonList(gn.Comparisons);
+          //copy comparison list
+          //change Dominant and Passive in types to real hands
+          if (cList.Count > 0)
+          {
+            foreach(ComparisonRule cr in cList)
             {
-                this.stream = s;
+              string a = cr.JointA;
+              string b = cr.JointB;
+              ReplaceDominantAndPassiveStrings(ref a, domHand, pasHand);
+              ReplaceDominantAndPassiveStrings(ref b, domHand, pasHand);
+              cr.JointA = a;
+              cr.JointB = b;
             }
-            if (jA != null)
+
+            ComparisonRule c = new ComparisonRule(null, null, ComparisonRule.ComparisonType.Over);
+
+            foreach(ComparisonRule cr in cList)
             {
-                this.JointA = jA;
-            }
-            if (jB != null)
-            {
-                this.JointB = jB;
-            }
-           
-        }
-
-      
-
-        private int CalcJointValue(string jointName)
-        {
-            if (jointName.Contains(JointFlags.Elbow.ToString()))
-            {
-                return (int)JointFlags.Elbow;
-            }
-            else if (jointName.Contains(JointFlags.Shoulder.ToString()))
-            {
-                return (int)JointFlags.Shoulder;
-            }
-            else
-            {
-                return (int)JointFlags.Wrist;
-            }
-        }
-
-        public void CalculateComparisonType()
-        {
-            //use flag system to work out joints
-
-            int jointTotal = 0;
-
-            string jointAName = JointA.JointType.ToString();
-            string jointBName = JointB.JointType.ToString();
-
-            //if both are of the same hand/side (left or right)
-            if (jointAName.Contains(stream.hand.ToString()) && 
-                jointBName.Contains(stream.hand.ToString())){
-
-                    List<string> joints = new List<string>();
-                    joints.Add(jointAName);
-                    joints.Add(jointBName);
-
-                    foreach (string joint in joints)
-                    {
-                        jointTotal += CalcJointValue(joint);
-                    }
-
-                    if (jointTotal > 0)
-                    {
-
-                        var values = EnumUtil.GetValues<ComparisonType>();
-                        foreach (ComparisonType type in values)
-                        {
-                            if ((int)type == jointTotal)
-                            {
-                                comparisonType = type;
-                                return;
-                            }
-                        }
-
-                    }                
-             }
-           
-            comparisonType = ComparisonType.None;
-           
-
-        }
-
-        public static class EnumUtil
-        {
-            public static IEnumerable<T> GetValues<T>()
-            {
-                return Enum.GetValues(typeof(T)).Cast<T>();
-            }
-        }
-
-        private Joint findJointByTypeInList(List<Joint> joints,
-                                            string type)
-        {
-            Joint rJoint = new Joint();
-
-            if (joints.Count > 0)
-            {
-                foreach (Joint joint in joints)
+              if (cr.JointNameCheck(this.JointA.JointType.ToString()))
+              {
+                if (cr.JointNameCheck(this.JointB.JointType.ToString()))
                 {
-                    if (joint.JointType.ToString().Contains(type))
-                    {
-                        rJoint = joint;
-                        break;
-                    }
+                    br = cr.CheckComparison(JointA, JointB, this.Stream);
                 }
+              }
             }
 
-            return rJoint;
+          }
+
+          return br;
 
         }
 
-        private bool AOverB(Joint JointA,
-                            Joint JointB)
+        public enum HandType
         {
-            if (JointA.Position.Y > JointB.Position.Y)
-            {
-                return true;
-            }
-            return false;
+            Dominant,
+            Passive
         }
 
-        private Brush ShoulderElbowComparison()
-        {
-            List<Joint> joints = getJointList();
 
-
-            //determine shoulder
-            //determine elbow
-            Joint shoulder = findJointByTypeInList(joints, "Shoulder");
-            Joint elbow = findJointByTypeInList(joints, "Elbow");
-
-            //coordinate comparison
-            //first see if elbow is above shoulder
-
-            if (AOverB(shoulder, elbow))
-            {
-                return invalidColour;
-            }
-
-
-            return MainElbowAngleCheck(shoulder, elbow);
-        }               
-
-        private double GetCoordinateDifference(double a,
-                                               double b)
-        {
-            double c = a * 100 - b * 100;
-            if (c < 0)
-            {
-                c = System.Math.Abs(c);
-            }
-            return c;
-        }
-
-        private double GetAngleFromOpposite(double opposite,
-                                            double hypotenuse)
-        {
-            return Math.Round( Math.Asin(opposite / hypotenuse) * 180/Math.PI );
-        }
-
-        private Brush MainElbowAngleCheck(Joint shoulder,
-                                          Joint elbow)
-        {
-
-            //get height difference of joints (will form part of triangle)
-            double opposite = GetCoordinateDifference(shoulder.Position.Y, elbow.Position.Y);
-            //set hypotenuse
-            double adjacent = GetCoordinateDifference(shoulder.Position.X, elbow.Position.X);
-            double hypo = GetHypotenuse(opposite, adjacent);
-
-
-
-
-            double shoulderAngle = GetAngleFromOpposite(opposite, hypo);
-            double elbowAngle = GetAngleFromOpposite(adjacent, hypo);
-            double c = GetAngleFromOpposite(8, 16);
-            
-
-            Brush br = Brushes.Green;
-
-
-            if (shoulderAngle + elbowAngle == 90)
-            {
-                //make sure angle values add up
-
-                //check shoulder angle 
-
-                ToleranceList tl = new ToleranceList(ToleranceList.ToleranceListType.DominantShoulder);
-
-                br = tl.CompareValueAgainstTolerances(shoulderAngle);
-
-
-            }
-
-            return br;
-
-        }
-
-        public double GetHypotenuse(double a, double b)
-        {
-            return Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
-        }
-
-        private Brush ElbowWristComparison()
-        {
-
-            List<Joint> joints = getJointList();
-
-            //determine elbow
-            //determine wrist
-            Joint elbow = findJointByTypeInList(joints, "Elbow");
-            Joint wrist = findJointByTypeInList(joints, "Wrist");
-
-            if (AOverB(wrist, elbow))           
-            {
-                return invalidColour;
-            }
-            
-            return validColour;
-        }
-              
-        public Brush Compare()
-        {
-            
-            switch (this.comparisonType)
-            {
-                case ComparisonType.ShoulderToElbow:
-                    return ShoulderElbowComparison();
-                    break;
-                case ComparisonType.ElbowToWrist:
-                    //return ElbowWristComparison();
-                    break;
-     
-            }
-
-            return Brushes.Green;
-
-
-        }
 
     }
- 
-    [Flags]
-    public enum JointFlags
-    {
-        Elbow = 1,
-        Wrist = 2,
-        Shoulder = 4
-    }
-
-    [Flags]
-    public enum ComparisonType
-    {
-        ShoulderToElbow = 5,
-        ElbowToWrist = 3,
-        None = 0
-    }
-
-    public enum Limits
-    {
-       Valid,
-       Acceptable,
-       Invalid
-    }
-
-
 }
