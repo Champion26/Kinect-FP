@@ -5,8 +5,15 @@
     <Grid>
         <Image Name="camera" Margin="10,0,10,10" />
         <Canvas Name="canvas" Margin="10,0,10,10" />
-        <Button x:Name="btnLeftHand" Content="Left" Canvas.Left="42" Canvas.Top="931" Click="btnLeft_Click" Margin="36,911,1709,58"/>
-        <Button x:Name="btnRightHand" Content="Right" Canvas.Left="194" Canvas.Top="931" Click="btnRightHand_Click" Margin="230,911,1515,58"/>
-        <Button Content="Start Analysis" HorizontalAlignment="Left" Margin="1686,911,0,0" VerticalAlignment="Top" Width="171" Height="80" Click="btnAnalysis_Click"/>
+            <Grid Height="346" Canvas.Left="72" Canvas.Top="609" Width="1734" Margin="89,618,89,85">
+                <Button x:Name="btnAnalysis" Content="Start Analysis" HorizontalAlignment="Left" Margin="1481,153,0,0" VerticalAlignment="Top" Width="167" Height="82" Click="btnAnalysis_Click" FontSize="18"/>
+                <GroupBox Header="Hand Preference" Height="150" Width="420" FontSize="18" Foreground="White" Margin="110,133,1204,63">
+                    <Grid Margin="-13,-6,-6,19">
+                        <Button x:Name="btnLeftHand" Content="Left" Click="btnLeft_Click" Margin="27,10,232,24"/>
+                        <Button x:Name="btnRightHand" Content="Right" Click="btnRightHand_Click" Margin="227,10,32,24"/>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        
     </Grid>
 </Window>

@@ -1,0 +1,11 @@
+﻿<Window x:Class="KinectWPF.Splash"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Splash" Height="1080" Width="1920" Loaded="Window_Loaded">
+    <Grid>
+        <Button x:Name="btnStart" Content="Start" HorizontalAlignment="Left" Margin="878,477,0,0" VerticalAlignment="Top" Width="156" Height="137" Click="btnStart_Click" Loaded="btnStart_Loaded"/>
+        <Label x:Name="lblWarning" Content="Please connect a Kinect 2." HorizontalAlignment="Left" Margin="878,419,0,0" VerticalAlignment="Top" Height="58" Width="156"/>
+        <Label x:Name="lblTitle" Content="Archery Form Analysis" HorizontalAlignment="Left" Margin="590,96,0,0" VerticalAlignment="Top" FontSize="72"/>
+
+    </Grid>
+</Window>

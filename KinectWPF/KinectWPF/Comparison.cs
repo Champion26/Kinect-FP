@@ -75,22 +75,17 @@ namespace KinectWPF
           return Streaming.HandPreference.Right;
         }
 
-        private void FindAndReplaceStr(ref string searchString,
-                                      string criteriaString,
-                                      string replaceString)
-        {
-            if (searchString.Contains(criteriaString))
-              {
-                searchString =  searchString.Replace(criteriaString, replaceString);
-              }
-        }
-
-        private void ReplaceDominantAndPassiveStrings(ref string searchString,
+        private string ReplaceDominantAndPassiveStrings(string searchString,
                                                       string dominantStringReplace,
                                                       string passiveStringReplace)
         {
-            FindAndReplaceStr(ref searchString, "Dominant", dominantStringReplace);
-            FindAndReplaceStr(ref searchString, "Passive", passiveStringReplace);
+            if (searchString.Contains("Dominant")){
+                return searchString.Replace("Dominant", dominantStringReplace);
+            }
+            else if (searchString.Contains("Passive")){
+                return searchString.Replace("Passive", passiveStringReplace);
+            }
+            return searchString;
         }
 
         public Brush RunComparison(ref Streaming.HandPreference hp)
@@ -109,15 +104,9 @@ namespace KinectWPF
           {
             foreach(ComparisonRule cr in cList)
             {
-              string a = cr.JointA;
-              string b = cr.JointB;
-              ReplaceDominantAndPassiveStrings(ref a, domHand, pasHand);
-              ReplaceDominantAndPassiveStrings(ref b, domHand, pasHand);
-              cr.JointA = a;
-              cr.JointB = b;
+              cr.JointA = ReplaceDominantAndPassiveStrings(cr.JointA, domHand, pasHand);
+              cr.JointB = ReplaceDominantAndPassiveStrings(cr.JointB, domHand, pasHand);
             }
-
-            ComparisonRule c = new ComparisonRule(null, null, ComparisonRule.ComparisonType.Over);
 
             foreach(ComparisonRule cr in cList)
             {
@@ -125,7 +114,25 @@ namespace KinectWPF
               {
                 if (cr.JointNameCheck(this.JointB.JointType.ToString()))
                 {
-                    br = cr.CheckComparison(JointA, JointB, this.Stream);
+                    switch (cr.CompType)
+                    {
+                        case (ComparisonRule.ComparisonType.Over):
+                        case (ComparisonRule.ComparisonType.Under):
+                        case (ComparisonRule.ComparisonType.Equal):
+                            ComparisonRuleAboveBelow crb = new ComparisonRuleAboveBelow();
+                            crb = crb.ConvertFromBaseComparisonRule(cr);
+                            if (crb.Operator == null)
+                            {
+                                crb.Operator = crb.DetermineStringOperator(cr.CompType);
+                            }
+                            br = crb.Compare(JointA, JointB, this.Stream);
+                            break;
+                        case (ComparisonRule.ComparisonType.Tolerance):
+                            ComparisonRuleTolerance crt = new ComparisonRuleTolerance();
+                            crt = crt.ConvertFromBaseComparisonRule(cr);
+                            br = crt.Compare(JointA, JointB, this.Stream);
+                            break;
+                    }
                 }
               }
             }

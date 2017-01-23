@@ -66,7 +66,17 @@ namespace KinectWPF
                         
         }
 
-        
+        public bool checkSensor()
+        {
+            KinectSensor sensor = KinectSensor.GetDefault();
+            sensor.Open();
+            if (sensor.IsAvailable)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void checkAndRunSensor(Canvas c = null,
                                       Image i = null)
         {
@@ -181,19 +191,19 @@ namespace KinectWPF
 
         public void StopBodyTracking()
         {
-            bodyFrameReader.FrameArrived -= Body_FrameArrived;
             this.bodyOn = false;
         }             
 
         private void Body_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
+            canvas.Children.Clear();
 
+            if (bodyOn)
+            {
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)
                 {
-                    canvas.Children.Clear();
-
                     bodies = new Body[bodyFrame.BodyFrameSource.BodyCount];
 
                     bodyFrame.GetAndRefreshBodyData(bodies);
@@ -206,45 +216,73 @@ namespace KinectWPF
 
 
                             List<Joint> drawJoints = new List<Joint>();
-                            drawJoints.Add(body.Joints[JointType.Head]);
-                            drawJoints.Add(body.Joints[JointType.Neck]);
-                            drawJoints.Add(body.Joints[JointType.SpineShoulder]);
-                            drawJoints.Add(body.Joints[JointType.ShoulderLeft]);
-                            drawJoints.Add(body.Joints[JointType.ShoulderRight]);
-                            drawJoints.Add(body.Joints[JointType.ElbowRight]);
-                            drawJoints.Add(body.Joints[JointType.WristRight]);
-                            drawJoints.Add(body.Joints[JointType.HandRight]);
-                            drawJoints.Add(body.Joints[JointType.HandTipRight]);
-                            drawJoints.Add(body.Joints[JointType.ElbowLeft]);
-                            drawJoints.Add(body.Joints[JointType.WristLeft]);
-                            drawJoints.Add(body.Joints[JointType.HandLeft]);
-                            drawJoints.Add(body.Joints[JointType.HandTipLeft]);
-                            drawJoints.Add(body.Joints[JointType.SpineMid]);
-                            drawJoints.Add(body.Joints[JointType.SpineBase]);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.Head, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.Neck, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.SpineShoulder, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.ShoulderLeft, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.ShoulderRight, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.ElbowRight, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.WristRight, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.HandRight, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.HandTipRight, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.ElbowLeft, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.WristLeft, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.HandLeft, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.HandTipLeft, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.SpineMid, body);
+
+                            CheckAndAddJoints(ref drawJoints, JointType.SpineBase, body);
 
                             //draw Joints
                             DrawJoints(drawJoints);
 
                             //draw centre of body
-                            DrawBone(body.Joints[JointType.Head], body.Joints[JointType.Neck]);
-                            DrawBone(body.Joints[JointType.Neck], body.Joints[JointType.SpineShoulder]);
-                            DrawBone(body.Joints[JointType.SpineShoulder], body.Joints[JointType.ShoulderLeft]);
-                            DrawBone(body.Joints[JointType.SpineShoulder], body.Joints[JointType.ShoulderRight]);
-                            DrawBone(body.Joints[JointType.SpineShoulder], body.Joints[JointType.SpineMid]);
-                            DrawBone(body.Joints[JointType.SpineMid], body.Joints[JointType.SpineBase]);
+                            CheckAndDrawBone(body, JointType.Head, JointType.Neck);
+
+                            CheckAndDrawBone(body, JointType.Neck, JointType.SpineShoulder);
+
+                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderLeft);
+
+                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderRight);
+
+                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.SpineMid);
+
+                            CheckAndDrawBone(body, JointType.SpineMid, JointType.SpineBase);
 
                             //draw right side
-                            DrawBone(body.Joints[JointType.ShoulderRight], body.Joints[JointType.ElbowRight]);
-                            DrawBone(body.Joints[JointType.ElbowRight], body.Joints[JointType.WristRight]);
-                            DrawBone(body.Joints[JointType.WristRight], body.Joints[JointType.HandRight]);
-                            DrawBone(body.Joints[JointType.HandRight], body.Joints[JointType.HandTipRight]);
-                                   
-                     
+
+                            CheckAndDrawBone(body, JointType.ShoulderRight, JointType.ElbowRight);
+
+                            CheckAndDrawBone(body, JointType.ElbowRight, JointType.WristRight);
+
+                            CheckAndDrawBone(body, JointType.WristRight, JointType.HandRight);
+
+                            CheckAndDrawBone(body, JointType.HandRight, JointType.HandTipRight);
+
+
                             //draw left side
-                            DrawBone(body.Joints[JointType.ShoulderLeft], body.Joints[JointType.ElbowLeft]);
-                            DrawBone(body.Joints[JointType.ElbowLeft], body.Joints[JointType.WristLeft]);
-                            DrawBone(body.Joints[JointType.WristLeft], body.Joints[JointType.HandLeft]);
-                            DrawBone(body.Joints[JointType.HandLeft], body.Joints[JointType.HandTipLeft]);
+
+                            CheckAndDrawBone(body, JointType.ShoulderLeft, JointType.ElbowLeft);
+
+                            CheckAndDrawBone(body, JointType.ElbowLeft, JointType.WristLeft);
+
+                            CheckAndDrawBone(body, JointType.WristLeft, JointType.HandLeft);
+
+                            CheckAndDrawBone(body, JointType.HandLeft, JointType.HandTipLeft);
                        
                         }
 
@@ -252,8 +290,42 @@ namespace KinectWPF
                   
                 }
             }
+        }
 
            
+        }
+
+        private void CheckAndDrawBone(Body body,
+                                      JointType JointA,
+                                      JointType JointB)
+        {
+            if (CheckJoint(body, JointA) && CheckJoint(body, JointB))
+            {
+                DrawBone(body.Joints[JointA], body.Joints[JointB]);
+            }
+        }
+
+        private void CheckAndAddJoints(ref List<Joint> ljt,
+                                       JointType jt,
+                                       Body body)
+        {
+            if (CheckJoint(body, jt))
+            {
+               ljt.Add(body.Joints[jt]);
+            }
+        }
+
+        private bool CheckJoint(Body body,
+                                JointType Joint)
+        {
+            if (body.Joints.ContainsKey(Joint))
+            {
+                if (body.Joints[Joint].TrackingState ==TrackingState.Tracked || body.Joints[Joint].TrackingState == TrackingState.Inferred)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public ColorSpacePoint GetXandYColourPoint(Joint joint)
@@ -266,11 +338,11 @@ namespace KinectWPF
 
         }
 
-        private bool InfinityCoordinateCheck(ColorSpacePoint csp)
+        private bool ValidCoordinateCheck(ColorSpacePoint csp)
         {
             bool r = false;
 
-            if (double.IsInfinity(csp.X) || double.IsInfinity(csp.Y))
+            if (csp.X > 0 || csp.Y > 0)
             {
                 r = true;
             }
@@ -286,9 +358,8 @@ namespace KinectWPF
             ColorSpacePoint fcp = GetXandYColourPoint(first);
             ColorSpacePoint scp = GetXandYColourPoint(second);
 
-            if (!(InfinityCoordinateCheck(fcp) && InfinityCoordinateCheck(scp)))
+            if (ValidCoordinateCheck(fcp) && ValidCoordinateCheck(scp))
             {
-
 
                 line.X1 = fcp.X;
                 line.X2 = scp.X;

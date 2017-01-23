@@ -33,6 +33,7 @@ namespace KinectWPF
             stream = new Streaming();
             stream.checkAndRunSensor(canvas,
                                      camera);
+            handSet(Streaming.HandPreference.Right);        
         }
 
         private void btnAnalysis_Click(object sender, RoutedEventArgs e)
@@ -41,10 +42,18 @@ namespace KinectWPF
             {
                 if (!stream.bodyOn)
                 {
+                    Dispatcher.Invoke(() =>
+                    {
+                        btnAnalysis.Content = "Stop";
+                    });
                     stream.StartBodyTracking();
                 }
                 else
                 {
+                    Dispatcher.Invoke(() =>
+                    {
+                        btnAnalysis.Content = "Start Analysis";
+                    });
                     stream.StopBodyTracking();
                 }
             }
@@ -102,6 +111,7 @@ namespace KinectWPF
             handSet(Streaming.HandPreference.Left);
         }
         #endregion
+              
 
     }
 }

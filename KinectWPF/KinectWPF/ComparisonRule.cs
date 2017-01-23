@@ -40,6 +40,10 @@ namespace KinectWPF
             {
                 return _tolerances;
             }
+            set
+            {
+                _tolerances = value;
+            }
         }
 
         public string JointA
@@ -72,8 +76,27 @@ namespace KinectWPF
             {
                 return _comparisonType;
             }
+            set
+            {
+                _comparisonType = value;
+            }
         }
 
+        protected ComparisonRule(ComparisonRuleAboveBelow other)
+        {
+            this._jointA = other._jointA;
+            this._jointB = other._jointB;
+            this._comparisonType = other._comparisonType;
+            this._tolerances = other._tolerances;
+        }
+
+        protected ComparisonRule(ComparisonRuleTolerance other)
+        {
+            this._jointA = other._jointA;
+            this._jointB = other._jointB;
+            this._comparisonType = other._comparisonType;
+            this._tolerances = other._tolerances;
+        }
 
 
         public ComparisonRule(string jA,
@@ -93,6 +116,11 @@ namespace KinectWPF
             {
                 this._comparisonType = ct;
             }
+
+        }
+
+        public ComparisonRule()
+        {
 
         }
 
@@ -122,7 +150,7 @@ namespace KinectWPF
 
         public List<ComparisonRule> CloneComparisonList(List<ComparisonRule> list)
         {
-            List<ComparisonRule> rList = new List<ComparisonRule>();
+          List<ComparisonRule> rList = new List<ComparisonRule>();
           if (list.Count > 0){
             foreach (ComparisonRule cmp in list)
             {
@@ -132,57 +160,7 @@ namespace KinectWPF
           return rList;
         }
 
-        private Brush CheckOver(Joint JointA,
-                           Joint JointB,
-                           Streaming stream)
-        {
-            if (stream.GetXandYColourPoint(JointA).Y > stream.GetXandYColourPoint(JointB).Y)
-            {
-                return Brushes.Red;
-            }
-            return Brushes.Green;
-
-        }
-
-        private Brush CheckUnder(Joint JointA,
-                              Joint JointB,
-                              Streaming stream)
-        {
-            if (stream.GetXandYColourPoint(JointA).Y < stream.GetXandYColourPoint(JointB).Y)
-            {
-                return Brushes.Red;
-            }
-            return Brushes.Green;
-
-        }
-
-        private Brush TestTolerances(Joint JointA,
-                                     Joint JointB,
-                                     Streaming stream)
-        {
-            //get height difference of joints (will form part of triangle)
-            double opposite = GetCoordinateDifference(JointA.Position.Y, JointB.Position.Y);
-            //set hypotenuse
-            double adjacent = GetCoordinateDifference(JointA.Position.X, JointB.Position.X);
-            double hypo = GetHypotenuse(opposite, adjacent);
-
-            Brush br = Brushes.Green;
-            double targetAngle = GetAngleFromOpposite(opposite, hypo);
-
-            if (targetAngle + GetAngleFromOpposite(adjacent, hypo) == 90)
-            {
-                //make sure angle values add up
-
-                //check shoulder angle 
-
-                br = CompareValueAgainstTolerances(targetAngle);
-
-            }
-
-            return br; 
-        }
-
-        private Brush CompareValueAgainstTolerances(double angle)
+        public Brush CompareValueAgainstTolerances(double angle)
         {
             if (this.Tolerances.Count > 0)
             {
@@ -198,7 +176,7 @@ namespace KinectWPF
         }
 
 
-        private double GetCoordinateDifference(double a,
+        public double GetCoordinateDifference(double a,
                                                double b)
         {
             double c = a * 100 - b * 100;
@@ -209,7 +187,7 @@ namespace KinectWPF
             return c;
         }
 
-        private double GetAngleFromOpposite(double opposite,
+        public double GetAngleFromOpposite(double opposite,
                                             double hypotenuse)
         {
             return Math.Round(Math.Asin(opposite / hypotenuse) * 180 / Math.PI);
@@ -220,27 +198,25 @@ namespace KinectWPF
             return Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
         }
 
+        public virtual Brush Compare(Joint JointA,
+                             Joint JointB,
+                             Streaming stream)
+        {
+            return Brushes.Green;
+        }
+
         public Brush CheckComparison(Joint JointA,
                                     Joint JointB,
                                     Streaming stream)
         {
-            switch (this.CompType)
-            {
-                case (ComparisonType.Over):
-                    return CheckOver(JointA, JointB, stream);
-                case (ComparisonType.Under):
-                    return CheckUnder(JointA, JointB, stream);
-                case (ComparisonType.Tolerance):
-                    return TestTolerances(JointA, JointB, stream);
-            }
-
-            return Brushes.Green;
+            return this.Compare(JointA, JointB, stream);
         }
 
         public enum ComparisonType
         {
             Over,
             Under,
+            Equal,
             Tolerance
         }
 
