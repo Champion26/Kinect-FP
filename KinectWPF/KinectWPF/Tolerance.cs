@@ -13,6 +13,8 @@ namespace KinectWPF
         private double _upperTolerance;
         private double _lowerTolerance;
         private Brush _colour;
+        private bool _optimal;
+        private ToleranceType _toleranceType;
 
         public double upperTolerance
         {
@@ -50,9 +52,35 @@ namespace KinectWPF
             }
         }
 
+        public bool Optimal
+        {
+            get
+            {
+                return _optimal;
+            }
+            set
+            {
+                _optimal = value;
+            }
+        }
+
+        public ToleranceType toleranceType
+        {
+            get
+            {
+                return _toleranceType;
+            }
+            set
+            {
+                _toleranceType = value;
+            }
+        }
+
         public Tolerance(double ut,
                          double lt,
-                         Brush c)
+                         Brush c,
+                         bool op,
+                         ToleranceType tt)
         {
             if (ut != null)
             {
@@ -66,7 +94,21 @@ namespace KinectWPF
             {
                 this.colour = c;
             }
+            if (op != null)
+            {
+                this.Optimal = op;
+            }
+            this.toleranceType = tt;
+        
         }
+
+
+        public enum ToleranceType
+        {
+             Valid,
+             Acceptable,
+             Invalid
+         }
 
 
     }

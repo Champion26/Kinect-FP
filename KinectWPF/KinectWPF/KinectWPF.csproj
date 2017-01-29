@@ -61,10 +61,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ActionMessage.cs" />
     <Compile Include="Comparison.cs" />
     <Compile Include="ComparisonRule.cs" />
     <Compile Include="ComparisonRuleAboveBelow.cs" />
-    <Compile Include="ComparisonRuleTolerance.cs" />
+    <Compile Include="ComparisonRuleAngle.cs" />
+    <Compile Include="ComparisonRuleBehind.cs" />
     <Compile Include="Generate.cs" />
     <Compile Include="Splash.xaml.cs">
       <DependentUpon>Splash.xaml</DependentUpon>
@@ -117,7 +119,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="AppDetails.xml" />
+    <Resource Include="AppDetails.xml">
+      <SubType>Designer</SubType>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="DumpClass.txt" />

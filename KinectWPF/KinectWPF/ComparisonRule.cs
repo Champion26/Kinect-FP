@@ -90,7 +90,7 @@ namespace KinectWPF
             this._tolerances = other._tolerances;
         }
 
-        protected ComparisonRule(ComparisonRuleTolerance other)
+        protected ComparisonRule(ComparisonRuleAngle other)
         {
             this._jointA = other._jointA;
             this._jointB = other._jointB;
@@ -112,16 +112,22 @@ namespace KinectWPF
             {
                 this._jointB = jB;
             }
-            if (ct != null)
-            {
-                this._comparisonType = ct;
-            }
-
+            this._comparisonType = ct;
         }
 
         public ComparisonRule()
         {
 
+        }
+
+        public Joint DetermineComparisonRuleJointOrder(Joint jointA, Joint jointB, bool JointA)
+        {
+            string jointStr = (JointA) ? this.JointA : this.JointB;
+            if (jointStr == jointA.JointType.ToString())
+            {
+                return jointA;
+            }
+            return jointB;
         }
 
         public bool JointNameCheck(string comparisonString)
@@ -141,7 +147,7 @@ namespace KinectWPF
           {
               foreach (Tolerance tol in this.Tolerances)
               {
-                  Tolerance rtol = new Tolerance(tol.upperTolerance, tol.lowerTolerance, tol.colour);
+                  Tolerance rtol = new Tolerance(tol.upperTolerance, tol.lowerTolerance, tol.colour, tol.Optimal, tol.toleranceType);
                   rComp.Tolerances.Add(rtol);
               }
           }
@@ -160,7 +166,8 @@ namespace KinectWPF
           return rList;
         }
 
-        public Brush CompareValueAgainstTolerances(double angle)
+        public Tolerance CompareValueAgainstTolerances(double angle,
+                                                  ref ActionMessage am)
         {
             if (this.Tolerances.Count > 0)
             {
@@ -168,13 +175,103 @@ namespace KinectWPF
                 {
                     if (angle > tol.lowerTolerance && angle < tol.upperTolerance)
                     {
-                        return tol.colour;
+                        am.Colour = tol.colour;
+                        return tol;
                     }
                 }
             }
-            return Brushes.Green;
+            Tolerance InvalidTol = FindToleranceByType(this, Tolerance.ToleranceType.Invalid);
+            am.Colour = InvalidTol.colour;
+            return InvalidTol;
         }
 
+        public static Tolerance FindToleranceByType(ComparisonRule cr, Tolerance.ToleranceType tt)
+        {
+            if (cr.Tolerances.Count > 0)
+            {
+                foreach (Tolerance tol in cr.Tolerances)
+                {
+                    if (tol.toleranceType == tt)
+                    {
+                        return tol;
+                    }
+                }
+            }
+            return null;
+
+        }
+
+        public string JointNameToReadableString(Joint jt)
+        {
+            string str = jt.JointType.ToString();
+            ContainsAndReplace(ref str, "Left", " Left");
+            ContainsAndReplace(ref str, "Right", " Right");
+            return str;
+        }
+
+        private void ContainsAndReplace(ref string str, string oldChar, string newChar)
+        {
+            if (str.Contains(oldChar))
+            {
+                str = String.Concat(oldChar, " ", str.Replace(oldChar, ""));
+            }
+        }
+
+        public void HandleToleranceError(Tolerance tol,
+                                          ref ActionMessage am,
+                                         double value,
+                                         string units,
+                                         bool excludeValue)
+        {
+            if (tol.Optimal == true)
+            {
+                am.Error = null;
+            }
+            else
+            {
+                Tolerance OptimalTolerance = GetOptimalTolerance();
+                if (OptimalTolerance != null)
+                {
+                    string direction = "raise";
+                    double distance = 0.0;
+                    if (value > OptimalTolerance.upperTolerance)
+                    {
+                        direction = "lower";
+                        distance = value - OptimalTolerance.upperTolerance;
+                    }
+                    else if (value < OptimalTolerance.lowerTolerance)
+                    {
+                        distance = OptimalTolerance.lowerTolerance - value;
+                    }
+                    StringBuilder str = new StringBuilder(string.Concat("Please ", direction, " your joint"));
+                    if (units != null && excludeValue == false)
+                    {
+                        str.Append(String.Concat(" by ", distance, units));
+                    }
+                    str.Append(".");
+                    am.Error = str.ToString();
+                }
+                else
+                {
+                    am.Error = "Error";
+                }
+            }
+        }
+
+        private Tolerance GetOptimalTolerance()
+        {
+            if (this.Tolerances.Count > 0)
+            {
+                foreach (Tolerance tol in this.Tolerances)
+                {
+                    if (tol.Optimal)
+                    {
+                        return tol;
+                    }
+                }
+            }
+            return null;
+        }
 
         public double GetCoordinateDifference(double a,
                                                double b)
@@ -198,18 +295,20 @@ namespace KinectWPF
             return Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
         }
 
-        public virtual Brush Compare(Joint JointA,
+        public virtual void Compare(Joint JointA,
                              Joint JointB,
-                             Streaming stream)
+                             Streaming stream,
+                             ref ActionMessage am)
         {
-            return Brushes.Green;
+            am.Colour = Brushes.Green;
         }
 
-        public Brush CheckComparison(Joint JointA,
+        public void CheckComparison(Joint JointA,
                                     Joint JointB,
                                     Streaming stream)
         {
-            return this.Compare(JointA, JointB, stream);
+            ActionMessage am = new ActionMessage();
+            //this.Compare(JointA, JointB, stream, am);
         }
 
         public enum ComparisonType
@@ -217,7 +316,8 @@ namespace KinectWPF
             Over,
             Under,
             Equal,
-            Tolerance
+            Angle,
+            Behind
         }
 
     }

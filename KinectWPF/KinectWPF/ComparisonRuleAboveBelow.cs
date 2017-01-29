@@ -103,17 +103,31 @@ namespace KinectWPF
         return rFunc;
       }
 
-      public override Brush Compare(Joint JointA,
+      public override void Compare(Joint JointA,
                                     Joint JointB,
-                                    Streaming stream)
+                                    Streaming stream,
+                                    ref ActionMessage am)
       {
-          Func<double, double, bool> op = DetermineComparisonFunction();
-
-        if (op(stream.GetXandYColourPoint(JointA).Y, stream.GetXandYColourPoint(JointB).Y))
+        Func<double, double, bool> op = DetermineComparisonFunction();
+      
+        if (this.Tolerances.Count > 0 && (this.Operator == ">" || this.Operator == "<"))
         {
-            return Brushes.Red;
+            double compValue = stream.GetXandYColourPoint(JointA).Y - stream.GetXandYColourPoint(JointB).Y;
+            Tolerance tol = CompareValueAgainstTolerances(compValue, ref am);
+            if (tol != null)
+            {
+                HandleToleranceError(tol, ref am, compValue, null, true);
+            }
         }
-        return Brushes.Green;
+        else
+        {
+            if (op(stream.GetXandYColourPoint(JointA).Y, stream.GetXandYColourPoint(JointB).Y))
+            {
+                am.Colour = Brushes.Red;
+                am.Error = String.Concat(JointNameToReadableString(JointA), " needs to be above ", JointNameToReadableString(JointB), ".");
+            }
+        }
+
       }
     }
 

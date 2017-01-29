@@ -213,7 +213,7 @@ namespace KinectWPF
 
                         if (body.IsTracked)
                         {
-
+                            List<ActionMessage> amList = new List<ActionMessage>();
 
                             List<Joint> drawJoints = new List<Joint>();
 
@@ -251,38 +251,38 @@ namespace KinectWPF
                             DrawJoints(drawJoints);
 
                             //draw centre of body
-                            CheckAndDrawBone(body, JointType.Head, JointType.Neck);
+                            CheckAndDrawBone(body, JointType.Head, JointType.Neck, ref amList);
 
-                            CheckAndDrawBone(body, JointType.Neck, JointType.SpineShoulder);
+                            CheckAndDrawBone(body, JointType.Neck, JointType.SpineShoulder, ref amList);
 
-                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderLeft);
+                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderLeft, ref amList);
 
-                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderRight);
+                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderRight, ref amList);
 
-                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.SpineMid);
+                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.SpineMid, ref amList);
 
-                            CheckAndDrawBone(body, JointType.SpineMid, JointType.SpineBase);
+                            CheckAndDrawBone(body, JointType.SpineMid, JointType.SpineBase, ref amList);
 
                             //draw right side
 
-                            CheckAndDrawBone(body, JointType.ShoulderRight, JointType.ElbowRight);
+                            CheckAndDrawBone(body, JointType.ShoulderRight, JointType.ElbowRight, ref amList);
 
-                            CheckAndDrawBone(body, JointType.ElbowRight, JointType.WristRight);
+                            CheckAndDrawBone(body, JointType.ElbowRight, JointType.WristRight, ref amList);
 
-                            CheckAndDrawBone(body, JointType.WristRight, JointType.HandRight);
+                            CheckAndDrawBone(body, JointType.WristRight, JointType.HandRight, ref amList);
 
-                            CheckAndDrawBone(body, JointType.HandRight, JointType.HandTipRight);
+                            CheckAndDrawBone(body, JointType.HandRight, JointType.HandTipRight, ref amList);
 
 
                             //draw left side
 
-                            CheckAndDrawBone(body, JointType.ShoulderLeft, JointType.ElbowLeft);
+                            CheckAndDrawBone(body, JointType.ShoulderLeft, JointType.ElbowLeft, ref amList);
 
-                            CheckAndDrawBone(body, JointType.ElbowLeft, JointType.WristLeft);
+                            CheckAndDrawBone(body, JointType.ElbowLeft, JointType.WristLeft, ref amList);
 
-                            CheckAndDrawBone(body, JointType.WristLeft, JointType.HandLeft);
+                            CheckAndDrawBone(body, JointType.WristLeft, JointType.HandLeft, ref amList);
 
-                            CheckAndDrawBone(body, JointType.HandLeft, JointType.HandTipLeft);
+                            CheckAndDrawBone(body, JointType.HandLeft, JointType.HandTipLeft, ref amList);
                        
                         }
 
@@ -297,11 +297,12 @@ namespace KinectWPF
 
         private void CheckAndDrawBone(Body body,
                                       JointType JointA,
-                                      JointType JointB)
+                                      JointType JointB,
+                                      ref List<ActionMessage> amList)
         {
             if (CheckJoint(body, JointA) && CheckJoint(body, JointB))
             {
-                DrawBone(body.Joints[JointA], body.Joints[JointB]);
+                amList.Add(DrawBone(body.Joints[JointA], body.Joints[JointB]));
             }
         }
 
@@ -350,9 +351,11 @@ namespace KinectWPF
             return r;
         }
 
-        private void DrawBone(Joint first, Joint second)
+        private ActionMessage DrawBone(Joint first,
+                              Joint second)
         {
-
+            ActionMessage am = new ActionMessage();
+            am.Colour = Brushes.Green;
             Line line = new Line();
 
             ColorSpacePoint fcp = GetXandYColourPoint(first);
@@ -368,12 +371,65 @@ namespace KinectWPF
 
                 line.StrokeThickness = 2;
 
-                line.Stroke = ComparisonCheck(first, second);
-
+                ComparisonCheck(first, second, ref am);
+                line.Stroke = am.Colour;
                 canvas.Children.Add(line);
+
+                if (am.Error != null)
+                {
+                    canvas.Children.Add(GenerateInfoMessage(line, am));
+                }
+
+                //TODO : Generate Info message
 
             }
 
+            return am;
+
+        }
+
+        private TextBox GenerateInfoMessage(Line line,
+                                         ActionMessage am)
+        {
+            TextBox tb = new TextBox();
+            tb.Text = am.Error;
+            Canvas.SetLeft(tb, FindMidpoint(line, CoordinateType.X));
+            Canvas.SetTop(tb, FindMidpoint(line, CoordinateType.Y));
+            return tb;
+        }
+
+        private double FindMidpoint(Line line,
+                                    CoordinateType ct)
+        {
+            switch (ct)
+            {
+                case (CoordinateType.X):
+                    return CalcMidPoint(line.X1, line.X2);
+                case (CoordinateType.Y):
+                    return CalcMidPoint(line.Y1, line.Y2);
+            }
+
+            return 0.0;
+        }
+
+        private double CalcMidPoint(double a, double b)
+        {
+            double dbl = (a - b) / 2;
+            if (dbl < 0)
+            {
+                dbl = dbl * -1;
+            }
+            return FindMinValue(a, b) + dbl;
+        }
+
+        private double FindMinValue(double a,
+                                    double b)
+        {
+            if (a > b)
+            {
+                return b;
+            }
+            return a;
         }
 
         private void DrawJoints(List<Joint> joints)
@@ -411,13 +467,14 @@ namespace KinectWPF
 
         #region Coordinate Comparison
 
-        private Brush ComparisonCheck(Joint JointA,
-                                      Joint JointB)
+        private void ComparisonCheck(Joint JointA,
+                                      Joint JointB,
+                                      ref ActionMessage am)
         {
 
             Comparison c = new Comparison(this.generate, JointA, JointB, this);
 
-            return c.RunComparison(ref hand);
+            c.RunComparison(ref hand, ref am);
                        
         }
 
@@ -428,6 +485,12 @@ namespace KinectWPF
         {
             Right,
             Left
+        }
+
+        public enum CoordinateType
+        {
+            X,
+            Y
         }
     }
 }

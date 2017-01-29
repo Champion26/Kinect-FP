@@ -60,20 +60,28 @@ namespace KinectWPF
                                                                        (ComparisonRule.ComparisonType)Enum.Parse(typeof(ComparisonRule.ComparisonType), cmp.Attributes.Item(2).Value.ToString()));
 
                          //possibly check rule validity
-                        if (comparisonRule.CompType == ComparisonRule.ComparisonType.Tolerance)
+                      
+                        XmlNodeList toleranceNodes = cmp.SelectNodes("Tolerance");
+                        if (toleranceNodes.Count > 0)
                         {
-                            XmlNodeList toleranceNodes = cmp.SelectNodes("Tolerance");
-                            if (toleranceNodes.Count > 0)
+                            foreach (XmlNode subtol in toleranceNodes)
                             {
-                                foreach (XmlNode subtol in toleranceNodes)
-                                {
-                                    BrushConverter conv = new BrushConverter();
+                                BrushConverter conv = new BrushConverter();
 
-                                    Tolerance t = new Tolerance(Convert.ToDouble(subtol.Attributes.Item(0).Value.ToString()),
-                                                                Convert.ToDouble(subtol.Attributes.Item(1).Value.ToString()),
-                                                                conv.ConvertFromString(subtol.Attributes.Item(2).Value.ToString()) as Brush);
-                                    comparisonRule.Tolerances.Add(t);
+                                bool op = false;
+                                //TODO FIX this
+                                if (FindAttribute(subtol.Attributes, "Optimal") != null)
+                                {
+                                    op = Convert.ToBoolean(FindAttribute(subtol.Attributes, "Optimal").Value.ToString());
                                 }
+
+                                Tolerance t = new Tolerance(Convert.ToDouble(FindAttribute(subtol.Attributes, "UpperLimit").Value.ToString()),
+                                                            Convert.ToDouble(FindAttribute(subtol.Attributes, "LowerLimit").Value.ToString()),
+                                                            conv.ConvertFromString(FindAttribute(subtol.Attributes, "Colour").Value.ToString()) as Brush,
+                                                            op,
+                                                            (Tolerance.ToleranceType)Enum.Parse(typeof(Tolerance.ToleranceType), FindAttribute(subtol.Attributes, "ToleranceType").Value.ToString()));
+
+                                comparisonRule.Tolerances.Add(t);
                             }
                         }
                         _comparisons.Add(comparisonRule);
@@ -82,6 +90,22 @@ namespace KinectWPF
 
             }
           
+        }
+
+        private XmlNode FindAttribute(XmlAttributeCollection attributes, string name)
+        {
+            if (attributes.Count > 0)
+            {
+                foreach (XmlNode item in attributes)
+                {
+                    if (item.Name == name)
+                    {
+                        return item;
+                    }
+                }
+            }
+
+            return null;
         }
 
         

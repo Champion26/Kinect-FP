@@ -1,14 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <AppDetails>
   <Comparisons>
-    <Comparison JointA="ShoulderDominant" JointB="ElbowDominant" Comparison="Over"></Comparison>
     <Comparison JointA="ElbowDominant" JointB="WristDominant" Comparison="Over"></Comparison>
-    <Comparison JointA="ElbowPassive" JointB="ShoulderPassive" Comparison="Over"></Comparison>
-    <Comparison JointA="ElbowPassive" JointB="WristPassive" Comparison="Under"></Comparison>
-    <Comparison JointA="ShoulderDominant" JointB="ElbowDominant" Comparison="Tolerance">
-      <Tolerance UpperLimit="45" LowerLimit ="25" Colour="Green"></Tolerance>
-      <Tolerance UpperLimit="55" LowerLimit ="5" Colour="Yellow"></Tolerance>
-      <Tolerance UpperLimit="70" LowerLimit ="0" Colour="Red"></Tolerance>
+    <Comparison JointA="ShoulderPassive" JointB="ElbowPassive" Comparison="Over"></Comparison>
+   
+    <Comparison JointA="ShoulderPassive" JointB="ElbowPassive" Comparison="Angle">
+      <Tolerance UpperLimit="45" LowerLimit ="25" Colour="Green" ToleranceType="Valid" Optimal="True"></Tolerance>
+      <Tolerance UpperLimit="55" LowerLimit ="5" Colour="Yellow" ToleranceType="Acceptable"></Tolerance>
+      <Tolerance UpperLimit="70" LowerLimit ="0" Colour="Red" ToleranceType="Invalid"></Tolerance>
     </Comparison>
+    <Comparison JointA="WristPassive" JointB="ElbowPassive" Comparison="Behind"></Comparison>
   </Comparisons>
 </AppDetails>
+
+
+<!--<Comparison JointA="ShoulderDominant" JointB="ElbowDominant" Comparison="Angle">
+      <Tolerance UpperLimit="45" LowerLimit ="25" Colour="Green" ToleranceType="Valid" Optimal="True"></Tolerance>
+      <Tolerance UpperLimit="55" LowerLimit ="5" Colour="Yellow" ToleranceType="Acceptable"></Tolerance>
+      <Tolerance UpperLimit="70" LowerLimit ="0" Colour="Red" ToleranceType="Invalid"></Tolerance>
+    </Comparison>-->

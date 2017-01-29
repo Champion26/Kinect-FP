@@ -88,9 +88,9 @@ namespace KinectWPF
             return searchString;
         }
 
-        public Brush RunComparison(ref Streaming.HandPreference hp)
+        public void RunComparison(ref Streaming.HandPreference hp,
+                                  ref ActionMessage am)
         {
-          Brush br = Brushes.Green;
 
           string domHand = hp.ToString();
           string pasHand = (hp == Streaming.HandPreference.Right) ? Streaming.HandPreference.Left.ToString() : Streaming.HandPreference.Right.ToString();
@@ -110,10 +110,13 @@ namespace KinectWPF
 
             foreach(ComparisonRule cr in cList)
             {
-              if (cr.JointNameCheck(this.JointA.JointType.ToString()))
+                if (cr.JointNameCheck(this.JointA.JointType.ToString()))
               {
                 if (cr.JointNameCheck(this.JointB.JointType.ToString()))
                 {
+                    Joint jA = cr.DetermineComparisonRuleJointOrder(JointA, JointB, true);
+                    Joint jB = cr.DetermineComparisonRuleJointOrder(JointA, JointB, false);
+
                     switch (cr.CompType)
                     {
                         case (ComparisonRule.ComparisonType.Over):
@@ -125,12 +128,17 @@ namespace KinectWPF
                             {
                                 crb.Operator = crb.DetermineStringOperator(cr.CompType);
                             }
-                            br = crb.Compare(JointA, JointB, this.Stream);
+                            crb.Compare(jA, jB, this.Stream, ref am);
                             break;
-                        case (ComparisonRule.ComparisonType.Tolerance):
-                            ComparisonRuleTolerance crt = new ComparisonRuleTolerance();
+                        case (ComparisonRule.ComparisonType.Angle):
+                            ComparisonRuleAngle crt = new ComparisonRuleAngle();
                             crt = crt.ConvertFromBaseComparisonRule(cr);
-                            br = crt.Compare(JointA, JointB, this.Stream);
+                            crt.Compare(jA, jB, this.Stream, ref am);
+                            break;
+                        case (ComparisonRule.ComparisonType.Behind):
+                            ComparisonRuleBehind cb = new ComparisonRuleBehind();
+                            cb = cb.ConvertFromBaseComparisonRule(cr);
+                            cb.Compare(jA, jB, this.Stream, ref am);
                             break;
                     }
                 }
@@ -138,10 +146,11 @@ namespace KinectWPF
             }
 
           }
-
-          return br;
+          
 
         }
+
+     
 
         public enum HandType
         {
