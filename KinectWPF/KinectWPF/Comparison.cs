@@ -94,7 +94,6 @@ namespace KinectWPF
 
           string domHand = hp.ToString();
           string pasHand = (hp == Streaming.HandPreference.Right) ? Streaming.HandPreference.Left.ToString() : Streaming.HandPreference.Right.ToString();
-
           ComparisonRule emptyCr = new ComparisonRule(null, null, ComparisonRule.ComparisonType.Over);
 
           List<ComparisonRule> cList = emptyCr.CloneComparisonList(gn.Comparisons);

@@ -28,6 +28,20 @@ namespace KinectWPF
     class ComparisonRuleAngle : ComparisonRule
     {
 
+        private Direction _direction;
+
+        public Direction direction
+        {
+            get
+            {
+                return _direction;
+            }
+            set
+            {
+                _direction = value;
+            }
+        }
+
         public ComparisonRuleAngle ConvertFromBaseComparisonRule(ComparisonRule cr)
         {
             ComparisonRuleAngle crt = new ComparisonRuleAngle();
@@ -35,6 +49,9 @@ namespace KinectWPF
             crt.JointB = cr.JointB;
             crt.CompType = cr.CompType;
             crt.Tolerances = cr.Tolerances;
+            crt.OriginNode = cr.OriginNode;
+            crt.FillAdditionalFields();
+            //Add addition fields 
             return crt;
         }
 
@@ -44,8 +61,6 @@ namespace KinectWPF
                                     ref ActionMessage am)
       {
         //get height difference of joints (will form part of triangle)
-        bool isInvalid = false;
-
         double opposite = GetCoordinateDifference(JointA.Position.Y, JointB.Position.Y);
         //set hypotenuse
         double adjacent = GetCoordinateDifference(JointA.Position.X, JointB.Position.X);
@@ -55,18 +70,116 @@ namespace KinectWPF
 
           Tolerance tol = CompareValueAgainstTolerances(targetAngle, ref am);
 
-        if (JointA.Position.Y > JointB.Position.Y)
-        {
-            isInvalid = true;
-            am.Colour = Brushes.Red;
-            tol = FindToleranceByType(this, Tolerance.ToleranceType.Invalid);
-        }
-        
+       //JointDirectionCheck(JointA, JointB)
+        // if above rule isn't working, autoInvalidate the tolerance and say raise/lower accordinly 
         if (tol != null)
         {
-            HandleToleranceError(tol, ref am, targetAngle, "°", isInvalid);
+            HandleAngleTolerance(ref am, tol, targetAngle, JointA, JointB);
         }
         
+      }
+
+      public void HandleAngleTolerance(ref ActionMessage am, 
+                                 Tolerance tol,
+                                 double value,
+                                 Joint JointA,
+                                 Joint JointB)
+      {
+
+
+          if (tol.Optimal == true && !JointDirectionCheck(JointA, JointB))
+              {
+                  am.Error = null;
+              }
+              else
+              {
+                  Tolerance OptimalTolerance = GetOptimalTolerance();
+                  if (OptimalTolerance != null)
+                  {
+                      string JointBName = this.StripPreferenceFromJointName(JointB.JointType.ToString()).ToLower();
+                      if (JointDirectionCheck(JointA, JointB))
+                      {
+                          string dir = "";
+                          switch (this.direction)
+                          {
+                              case (Direction.A_Above_B):
+                                  dir = " lower ";
+                                  break;
+                              case (Direction.B_Above_A):
+                                  dir = " raise ";
+                                  break;
+                          }
+                          am.Error = String.Concat("Please", dir, JointBName, ".");
+                          am.Colour = FindToleranceByType(this, Tolerance.ToleranceType.Invalid).colour;
+                          return;
+                      }
+
+                      string direction = (this.direction == Direction.A_Above_B) ? "lower" : "raise";
+
+                      double distance = 0.0;
+                      if (value > OptimalTolerance.upperTolerance)
+                      {
+
+                          direction = (this.direction == Direction.A_Above_B) ? "raise" : "lower";
+                          distance = value - OptimalTolerance.upperTolerance;
+                      }
+                      else if (value < OptimalTolerance.lowerTolerance)
+                      {
+                          distance = OptimalTolerance.lowerTolerance - value;
+                      }
+
+                      StringBuilder str = new StringBuilder(string.Concat("Please ", direction, " your ", JointBName));
+
+                      str.Append(String.Concat(" by ", distance, "°"));
+
+                      str.Append(".");
+                      am.Error = str.ToString();
+                  }
+                  else
+                  {
+                      am.Error = "Error";
+                  }
+              }
+      }
+
+      private bool JointDirectionCheck(Joint jA, Joint jB)
+      {
+          switch (this.direction)
+          {
+              case Direction.A_Above_B:
+                  if (jB.Position.Y > jA.Position.Y)
+                  {
+                      return true;
+                  }
+                  break;
+              case Direction.B_Above_A:
+                  if (jA.Position.Y > jB.Position.Y)
+                  {
+                      return true;
+                  }
+                  break;
+          }
+          return false;
+      }
+
+      private void FillAdditionalFields()
+      {
+          GenerateDirection();
+      }
+
+      private void GenerateDirection()
+      {
+          if (this.OriginNode != null)
+          {
+              Generate gn = new Generate();
+              this.direction = (Direction)Enum.Parse(typeof(Direction), gn.FindAttribute(OriginNode.Attributes, "AngleDirection").Value.ToString());
+          }
+      }
+
+      public enum Direction
+      {
+          A_Above_B,
+          B_Above_A
       }
     }
 

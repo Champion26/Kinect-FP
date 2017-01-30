@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Drawing;
+using System.Xml;
 
 
 
@@ -30,6 +31,7 @@ namespace KinectWPF
         private string _jointA;
         private string _jointB;
         private ComparisonType _comparisonType;
+        private XmlNode _OriginNode;
 
         private List<Tolerance> _tolerances;
 
@@ -82,12 +84,26 @@ namespace KinectWPF
             }
         }
 
+        public XmlNode OriginNode
+        {
+            get
+            {
+                return _OriginNode;
+            }
+            set
+            {
+                _OriginNode = value;
+            }
+
+        }
+
         protected ComparisonRule(ComparisonRuleAboveBelow other)
         {
             this._jointA = other._jointA;
             this._jointB = other._jointB;
             this._comparisonType = other._comparisonType;
             this._tolerances = other._tolerances;
+
         }
 
         protected ComparisonRule(ComparisonRuleAngle other)
@@ -95,13 +111,13 @@ namespace KinectWPF
             this._jointA = other._jointA;
             this._jointB = other._jointB;
             this._comparisonType = other._comparisonType;
-            this._tolerances = other._tolerances;
+            this._OriginNode = other._OriginNode;
         }
-
 
         public ComparisonRule(string jA,
                               string jB,
-                              ComparisonType ct)
+                              ComparisonType ct,
+                              XmlNode xn = null)
         {
             _tolerances = new List<Tolerance>();
             if (jA != null)
@@ -113,6 +129,7 @@ namespace KinectWPF
                 this._jointB = jB;
             }
             this._comparisonType = ct;
+            this.OriginNode = xn;
         }
 
         public ComparisonRule()
@@ -142,7 +159,7 @@ namespace KinectWPF
 
         public ComparisonRule Clone()
         {
-          ComparisonRule rComp = new ComparisonRule(this.JointA, this.JointB, this.CompType);
+          ComparisonRule rComp = new ComparisonRule(this.JointA, this.JointB, this.CompType, this.OriginNode);
           if (this.Tolerances.Count > 0)
           {
               foreach (Tolerance tol in this.Tolerances)
@@ -204,12 +221,12 @@ namespace KinectWPF
         public string JointNameToReadableString(Joint jt)
         {
             string str = jt.JointType.ToString();
-            ContainsAndReplace(ref str, "Left", " Left");
-            ContainsAndReplace(ref str, "Right", " Right");
+            RemoveStringAddToFront(ref str, "Left", " Left");
+            RemoveStringAddToFront(ref str, "Right", " Right");
             return str;
         }
 
-        private void ContainsAndReplace(ref string str, string oldChar, string newChar)
+        private void RemoveStringAddToFront(ref string str, string oldChar, string newChar)
         {
             if (str.Contains(oldChar))
             {
@@ -217,48 +234,9 @@ namespace KinectWPF
             }
         }
 
-        public void HandleToleranceError(Tolerance tol,
-                                          ref ActionMessage am,
-                                         double value,
-                                         string units,
-                                         bool excludeValue)
-        {
-            if (tol.Optimal == true)
-            {
-                am.Error = null;
-            }
-            else
-            {
-                Tolerance OptimalTolerance = GetOptimalTolerance();
-                if (OptimalTolerance != null)
-                {
-                    string direction = "raise";
-                    double distance = 0.0;
-                    if (value > OptimalTolerance.upperTolerance)
-                    {
-                        direction = "lower";
-                        distance = value - OptimalTolerance.upperTolerance;
-                    }
-                    else if (value < OptimalTolerance.lowerTolerance)
-                    {
-                        distance = OptimalTolerance.lowerTolerance - value;
-                    }
-                    StringBuilder str = new StringBuilder(string.Concat("Please ", direction, " your joint"));
-                    if (units != null && excludeValue == false)
-                    {
-                        str.Append(String.Concat(" by ", distance, units));
-                    }
-                    str.Append(".");
-                    am.Error = str.ToString();
-                }
-                else
-                {
-                    am.Error = "Error";
-                }
-            }
-        }
+  
 
-        private Tolerance GetOptimalTolerance()
+        public Tolerance GetOptimalTolerance()
         {
             if (this.Tolerances.Count > 0)
             {
@@ -273,15 +251,31 @@ namespace KinectWPF
             return null;
         }
 
+        public string StripPreferenceFromJointName(string jointName)
+        {
+            string str = jointName;
+            RemoveString(ref str, "Left");
+            RemoveString(ref str, "Right");
+            return str;
+        }
+
+        public void RemoveString(ref string str, string remove)
+        {
+            if (str.Contains(remove))
+            {
+                str = str.Replace(remove, "");
+            }
+        }
+
         public double GetCoordinateDifference(double a,
                                                double b)
         {
-            double c = a * 100 - b * 100;
+            double c = a  - b ;
             if (c < 0)
             {
-                c = System.Math.Abs(c);
+                c = c * -1;
             }
-            return c;
+            return c * 100;
         }
 
         public double GetAngleFromOpposite(double opposite,

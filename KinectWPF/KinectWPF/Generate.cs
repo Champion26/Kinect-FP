@@ -57,7 +57,8 @@ namespace KinectWPF
                     {
                         ComparisonRule comparisonRule = new ComparisonRule(cmp.Attributes.Item(0).Value.ToString(),
                                                                        cmp.Attributes.Item(1).Value.ToString(),
-                                                                       (ComparisonRule.ComparisonType)Enum.Parse(typeof(ComparisonRule.ComparisonType), cmp.Attributes.Item(2).Value.ToString()));
+                                                                       (ComparisonRule.ComparisonType)Enum.Parse(typeof(ComparisonRule.ComparisonType), cmp.Attributes.Item(2).Value.ToString()),
+                                                                       cmp);
 
                          //possibly check rule validity
                       
@@ -92,7 +93,7 @@ namespace KinectWPF
           
         }
 
-        private XmlNode FindAttribute(XmlAttributeCollection attributes, string name)
+        public XmlNode FindAttribute(XmlAttributeCollection attributes, string name)
         {
             if (attributes.Count > 0)
             {

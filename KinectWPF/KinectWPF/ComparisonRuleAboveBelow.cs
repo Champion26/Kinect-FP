@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Drawing;
+using System.Xml;
 
 
 
@@ -49,7 +50,8 @@ namespace KinectWPF
       public ComparisonRuleAboveBelow(string jA,
                             string jB,
                             ComparisonType ct,
-                            string op) : base(jA, jB, ct)
+                            string op,
+                            XmlNode xn) : base(jA, jB, ct, xn)
       {
           if (op != null)
           {
@@ -109,24 +111,13 @@ namespace KinectWPF
                                     ref ActionMessage am)
       {
         Func<double, double, bool> op = DetermineComparisonFunction();
-      
-        if (this.Tolerances.Count > 0 && (this.Operator == ">" || this.Operator == "<"))
-        {
-            double compValue = stream.GetXandYColourPoint(JointA).Y - stream.GetXandYColourPoint(JointB).Y;
-            Tolerance tol = CompareValueAgainstTolerances(compValue, ref am);
-            if (tol != null)
-            {
-                HandleToleranceError(tol, ref am, compValue, null, true);
-            }
-        }
-        else
-        {
+     
             if (op(stream.GetXandYColourPoint(JointA).Y, stream.GetXandYColourPoint(JointB).Y))
             {
                 am.Colour = Brushes.Red;
                 am.Error = String.Concat(JointNameToReadableString(JointA), " needs to be above ", JointNameToReadableString(JointB), ".");
             }
-        }
+        
 
       }
     }
