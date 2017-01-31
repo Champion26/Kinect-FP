@@ -62,6 +62,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ActionMessage.cs" />
+    <Compile Include="Bone.cs" />
     <Compile Include="Comparison.cs" />
     <Compile Include="ComparisonRule.cs" />
     <Compile Include="ComparisonRuleAboveBelow.cs" />

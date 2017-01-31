@@ -217,92 +217,40 @@ namespace KinectWPF
 
                             List<Joint> drawJoints = new List<Joint>();
 
-                            CheckAndAddJoints(ref drawJoints, JointType.Head, body);
+                            foreach (Bone bone in generate.Bones)
+                            {
+                                CheckAndDrawBone(body, bone.JointA, bone.JointB, ref amList, ref drawJoints);
+                            }
 
-                            CheckAndAddJoints(ref drawJoints, JointType.Neck, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.SpineShoulder, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.ShoulderLeft, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.ShoulderRight, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.ElbowRight, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.WristRight, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.HandRight, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.HandTipRight, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.ElbowLeft, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.WristLeft, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.HandLeft, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.HandTipLeft, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.SpineMid, body);
-
-                            CheckAndAddJoints(ref drawJoints, JointType.SpineBase, body);
-
-                            //draw Joints
                             DrawJoints(drawJoints);
-
-                            //draw centre of body
-                            CheckAndDrawBone(body, JointType.Head, JointType.Neck, ref amList);
-
-                            CheckAndDrawBone(body, JointType.Neck, JointType.SpineShoulder, ref amList);
-
-                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderLeft, ref amList);
-
-                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.ShoulderRight, ref amList);
-
-                            CheckAndDrawBone(body, JointType.SpineShoulder, JointType.SpineMid, ref amList);
-
-                            CheckAndDrawBone(body, JointType.SpineMid, JointType.SpineBase, ref amList);
-
-                            //draw right side
-
-                            CheckAndDrawBone(body, JointType.ShoulderRight, JointType.ElbowRight, ref amList);
-
-                            CheckAndDrawBone(body, JointType.ElbowRight, JointType.WristRight, ref amList);
-
-                            CheckAndDrawBone(body, JointType.WristRight, JointType.HandRight, ref amList);
-
-                            CheckAndDrawBone(body, JointType.HandRight, JointType.HandTipRight, ref amList);
-
-
-                            //draw left side
-
-                            CheckAndDrawBone(body, JointType.ShoulderLeft, JointType.ElbowLeft, ref amList);
-
-                            CheckAndDrawBone(body, JointType.ElbowLeft, JointType.WristLeft, ref amList);
-
-                            CheckAndDrawBone(body, JointType.WristLeft, JointType.HandLeft, ref amList);
-
-                            CheckAndDrawBone(body, JointType.HandLeft, JointType.HandTipLeft, ref amList);
                        
                         }
-
                     }
-                  
                 }
             }
         }
-
            
         }
 
         private void CheckAndDrawBone(Body body,
                                       JointType JointA,
                                       JointType JointB,
-                                      ref List<ActionMessage> amList)
+                                      ref List<ActionMessage> amList,
+                                      ref List<Joint> jointList)
         {
             if (CheckJoint(body, JointA) && CheckJoint(body, JointB))
             {
+                CheckAndAddJointsToList(ref jointList, body, body.Joints[JointA]);
+                CheckAndAddJointsToList(ref jointList, body, body.Joints[JointB]);
                 amList.Add(DrawBone(body.Joints[JointA], body.Joints[JointB]));
+            }
+        }
+
+        private void CheckAndAddJointsToList(ref List<Joint> jointList, Body body, Joint j)
+        {
+            if (!jointList.Contains(j))
+            {
+                jointList.Add(j);
             }
         }
 
@@ -369,10 +317,12 @@ namespace KinectWPF
                 line.Y1 = fcp.Y;
                 line.Y2 = scp.Y;
 
-                line.StrokeThickness = 2;
+                line.StrokeThickness = 4;
 
                 ComparisonCheck(first, second, ref am);
                 line.Stroke = am.Colour;
+                Canvas.SetZIndex(line, -99);
+
                 canvas.Children.Add(line);
 
                 if (am.Error != null)
@@ -447,18 +397,20 @@ namespace KinectWPF
             }
         }
 
+
+
         private void DrawEllipse(Joint joint)
         {
             Ellipse ellipse = new Ellipse
             {
-                Fill = Brushes.Blue,
-                Width = 10,
-                Height = 10
+                Fill = Brushes.DeepSkyBlue,
+                Width = 15,
+                Height = 15
             };
 
             Canvas.SetLeft(ellipse, GetXandYColourPoint(joint).X - ellipse.Width / 2);
             Canvas.SetTop(ellipse, GetXandYColourPoint(joint).Y - ellipse.Height / 2);
-
+            Canvas.SetZIndex(ellipse, 99);
             canvas.Children.Add(ellipse);
         }
                     

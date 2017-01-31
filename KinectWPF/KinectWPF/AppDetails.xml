@@ -1,5 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <AppDetails>
+  <Bones>
+    <Bone JointA="Head" JointB="Neck"/>
+    <Bone JointA="Neck" JointB="SpineShoulder"/>
+    <Bone JointA="SpineShoulder" JointB="ShoulderLeft"/>
+    <Bone JointA="SpineShoulder" JointB="ShoulderRight"/>
+    <Bone JointA="SpineShoulder" JointB="SpineMid"/>
+    <Bone JointA="SpineMid" JointB="SpineBase"/>
+    <Bone JointA="ShoulderRight" JointB="ElbowRight"/>
+    <Bone JointA="ElbowRight" JointB="WristRight"/>
+    <Bone JointA="WristRight" JointB="HandRight"/>
+    <Bone JointA="HandRight" JointB="HandTipRight"/>
+    <Bone JointA="ShoulderLeft" JointB="ElbowLeft"/>
+    <Bone JointA="ElbowLeft" JointB="WristLeft"/>
+    <Bone JointA="WristLeft" JointB="HandLeft"/>
+    <Bone JointA="HandLeft" JointB="HandTipLeft"/>
+  </Bones>
   <Comparisons>
     <Comparison JointA="ElbowDominant" JointB="WristDominant" Comparison="Over"></Comparison>
     <Comparison JointA="ShoulderPassive" JointB="ElbowPassive" Comparison="Over"></Comparison>
