@@ -38,6 +38,8 @@ namespace KinectWPF
         Canvas canvas;
         Image camera;
 
+        public Brush JointColour;
+
         public HandPreference hand = HandPreference.Right;
 
         public bool bodyOn = false;
@@ -133,7 +135,8 @@ namespace KinectWPF
                     //check if colour frame is valid, if not stop 
                     return;
                 }
-                camera.Source = ConvertToBitmap(colourFrame);
+                BitmapSource bmps = ConvertToBitmap(colourFrame);
+                camera.Source = bmps;
       
             }
         }
@@ -403,7 +406,7 @@ namespace KinectWPF
         {
             Ellipse ellipse = new Ellipse
             {
-                Fill = Brushes.DeepSkyBlue,
+                Fill = this.JointColour,
                 Width = 15,
                 Height = 15
             };

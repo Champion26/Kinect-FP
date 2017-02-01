@@ -5,15 +5,24 @@
     <Grid>
         <Image Name="camera" Margin="10,0,10,10" />
         <Canvas Name="canvas" Margin="10,0,10,10" />
-            <Grid Height="346" Canvas.Left="72" Canvas.Top="609" Width="1734" Margin="89,618,89,85">
-                <Button x:Name="btnAnalysis" Content="Start Analysis" HorizontalAlignment="Left" Margin="1481,153,0,0" VerticalAlignment="Top" Width="167" Height="82" Click="btnAnalysis_Click" FontSize="18"/>
-                <GroupBox Header="Hand Preference" Height="150" Width="420" FontSize="18" Foreground="White" Margin="110,133,1204,63">
-                    <Grid Margin="-13,-6,-6,19">
-                        <Button x:Name="btnLeftHand" Content="Left" Click="btnLeft_Click" Margin="27,10,232,24"/>
-                        <Button x:Name="btnRightHand" Content="Right" Click="btnRightHand_Click" Margin="227,10,32,24"/>
-                    </Grid>
-                </GroupBox>
+        <GroupBox x:Name="grpBoxJointButtons" Header="Joint Colour" FontSize="18" Foreground="White" Canvas.Left="842" Canvas.Top="116" Height="127" Width="815" Margin="1008,58,89,864" BorderThickness="0">
+            <Grid x:Name="grdJointButtons" Margin="15,23,-6,-6">
+                <ComboBox x:Name="cbJointColour" Margin="349,32,107,10" ItemsSource="{Binding Colours}" SelectionChanged="cbJointColour_SelectionChanged" Loaded="cbJointColour_Loaded"/>
             </Grid>
-        
+        </GroupBox>
+        <Grid Height="346" Canvas.Left="72" Canvas.Top="609" Width="1734" Margin="89,618,89,85">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="647*"/>
+                <ColumnDefinition Width="1087*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="btnAnalysis" Content="Start Analysis" HorizontalAlignment="Left" Margin="834,153,0,0" VerticalAlignment="Top" Width="167" Height="82" Click="btnAnalysis_Click" FontSize="18" Grid.Column="1"/>
+            <GroupBox x:Name="grpBoxHandPref" Header="Hand Preference" Height="150" Width="420" Padding="0" FontSize="18" Foreground="White" Margin="110,133,117,63" BorderThickness="5">
+                <Grid Margin="-13,-6,-6,19">
+                    <Button x:Name="btnLeftHand" Content="Left" Click="btnLeft_Click" Margin="27,10,232,24"/>
+                    <Button x:Name="btnRightHand" Content="Right" Click="btnRightHand_Click" Margin="227,10,32,24"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
+
     </Grid>
 </Window>

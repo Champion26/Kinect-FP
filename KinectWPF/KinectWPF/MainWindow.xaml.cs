@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Reflection;
 
 namespace KinectWPF
 {
@@ -20,8 +21,9 @@ namespace KinectWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-
         public Streaming stream;
+
+        public List<Brush> Colours;
 
         public MainWindow()
         {
@@ -33,7 +35,8 @@ namespace KinectWPF
             stream = new Streaming();
             stream.checkAndRunSensor(canvas,
                                      camera);
-            handSet(Streaming.HandPreference.Right);        
+            handSet(Streaming.HandPreference.Right);
+            ChangeJointColour(Brushes.DeepSkyBlue);
         }
 
         private void btnAnalysis_Click(object sender, RoutedEventArgs e)
@@ -111,6 +114,53 @@ namespace KinectWPF
             handSet(Streaming.HandPreference.Left);
         }
         #endregion
+
+        public void ChangeJointColour(Brush colour)
+        {
+            this.stream.JointColour = colour;
+        }
+
+        private void cbJointColour_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string s = e.AddedItems[0] as string;
+
+            if (s != null)
+            {
+                ChangeJointColour(new SolidColorBrush((Color)ColorConverter.ConvertFromString(s)));
+        
+            }
+        }
+
+        private void PopulateColours()
+        {
+            Colours = new List<Brush>();
+
+            Type brushesType = typeof(System.Windows.Media.Brushes);
+
+            var properties = brushesType.GetProperties(BindingFlags.Static | BindingFlags.Public);
+
+            foreach (var prop in properties)
+            {
+                string name = prop.Name;
+                SolidColorBrush brush = (SolidColorBrush)prop.GetValue(null, null);
+                var colorname = GetColorName(brush.Color);
+                cbJointColour.Items.Add(colorname);
+            }
+        }
+
+        static string GetColorName(Color col)
+        {
+            PropertyInfo colorProperty = typeof(Colors).GetProperties()
+                .FirstOrDefault(p => Color.AreClose((Color)p.GetValue(null), col));
+            return colorProperty != null ? colorProperty.Name : "unnamed color";
+        }
+
+        private void cbJointColour_Loaded(object sender, RoutedEventArgs e)
+        {
+            PopulateColours();
+        }
+
+
               
 
     }
