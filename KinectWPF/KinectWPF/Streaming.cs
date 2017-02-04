@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.Kinect;
 using System.Windows.Media;
 using System.Windows;
@@ -20,9 +19,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Drawing;
-
-
-
 
 namespace KinectWPF
 {
@@ -332,13 +328,8 @@ namespace KinectWPF
                 {
                     canvas.Children.Add(GenerateInfoMessage(line, am));
                 }
-
-                //TODO : Generate Info message
-
             }
-
             return am;
-
         }
 
         private TextBox GenerateInfoMessage(Line line,
@@ -428,14 +419,9 @@ namespace KinectWPF
         {
 
             Comparison c = new Comparison(this.generate, JointA, JointB, this);
-
             c.RunComparison(ref hand, ref am);
-                       
         }
-
-
         #endregion
-
         public enum HandPreference
         {
             Right,

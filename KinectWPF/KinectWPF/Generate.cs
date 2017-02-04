@@ -50,21 +50,17 @@ namespace KinectWPF
             _bones = new List<Bone>();
 
         }
-
   
         public void GetFromXml()
         {
             XmlDocument xml = new XmlDocument();
             xml.Load(String.Concat(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, "\\AppDetails.xml"));
-
             if (xml.DocumentElement != null)
             {
                 XmlElement root = xml.DocumentElement;
                 GenerateBonesAndJoints(root);
                 GenerateComparisonRules(root);
-
             }
-          
         }
 
         private void GenerateBonesAndJoints(XmlElement root)
@@ -74,11 +70,23 @@ namespace KinectWPF
             {
                 foreach (XmlNode cmp in nodes.Item(0).ChildNodes)
                 {
-                    Bone bone = new Bone((JointType)Enum.Parse(typeof(JointType), FindAttribute(cmp.Attributes, "JointA").Value.ToString()),
-                                          (JointType)Enum.Parse(typeof(JointType), FindAttribute(cmp.Attributes, "JointB").Value.ToString()));
-                    Bones.Add(bone);
+                    try
+                    {
+                        Bone bone = new Bone(MatchJointType(cmp, "JointA"),
+                                      MatchJointType(cmp, "JointB"));
+                        Bones.Add(bone);
+                    }
+                    catch
+                    {
+                    }
+                
                 }
             }
+        }
+
+        private JointType MatchJointType(XmlNode cmp, string joint)
+        {
+            return (JointType)Enum.Parse(typeof(JointType), FindAttribute(cmp.Attributes, joint).Value.ToString());
         }
 
         private void GenerateComparisonRules(XmlElement root)
@@ -89,37 +97,50 @@ namespace KinectWPF
             {
                 foreach (XmlNode cmp in nodes.Item(0).ChildNodes)
                 {
-                    ComparisonRule comparisonRule = new ComparisonRule(cmp.Attributes.Item(0).Value.ToString(),
-                                                                   cmp.Attributes.Item(1).Value.ToString(),
-                                                                   (ComparisonRule.ComparisonType)Enum.Parse(typeof(ComparisonRule.ComparisonType), cmp.Attributes.Item(2).Value.ToString()),
-                                                                   cmp);
-
-                    //possibly check rule validity
-
-                    XmlNodeList toleranceNodes = cmp.SelectNodes("Tolerance");
-                    if (toleranceNodes.Count > 0)
+                    try
                     {
-                        foreach (XmlNode subtol in toleranceNodes)
+                        ComparisonRule comparisonRule = new ComparisonRule(FindAttribute(cmp.Attributes, "JointA").Value.ToString(),
+                                                                  FindAttribute(cmp.Attributes, "JointB").Value.ToString(),
+                                                                  (ComparisonRule.ComparisonType)Enum.Parse(typeof(ComparisonRule.ComparisonType), FindAttribute(cmp.Attributes, "Comparison").Value.ToString()),
+                                                                  cmp);
+
+                        //possibly check rule validity
+
+                        XmlNodeList toleranceNodes = cmp.SelectNodes("Tolerance");
+                        if (toleranceNodes.Count > 0)
                         {
-                            BrushConverter conv = new BrushConverter();
-
-                            bool op = false;
-                            //TODO FIX this
-                            if (FindAttribute(subtol.Attributes, "Optimal") != null)
+                            foreach (XmlNode subtol in toleranceNodes)
                             {
-                                op = Convert.ToBoolean(FindAttribute(subtol.Attributes, "Optimal").Value.ToString());
+                                BrushConverter conv = new BrushConverter();
+
+                                bool op = false;
+                                //TODO FIX this
+                                if (FindAttribute(subtol.Attributes, "Optimal") != null)
+                                {
+                                    op = Convert.ToBoolean(FindAttribute(subtol.Attributes, "Optimal").Value.ToString());
+                                }
+
+                                try
+                                {
+                                    Tolerance t = new Tolerance(Convert.ToDouble(FindAttribute(subtol.Attributes, "UpperLimit").Value.ToString()),
+                                                           Convert.ToDouble(FindAttribute(subtol.Attributes, "LowerLimit").Value.ToString()),
+                                                           conv.ConvertFromString(FindAttribute(subtol.Attributes, "Colour").Value.ToString()) as Brush,
+                                                           op,
+                                                           (Tolerance.ToleranceType)Enum.Parse(typeof(Tolerance.ToleranceType), FindAttribute(subtol.Attributes, "ToleranceType").Value.ToString()));
+
+                                    comparisonRule.Tolerances.Add(t);
+                                }
+                                catch
+                                {
+                                }
+                               
                             }
-
-                            Tolerance t = new Tolerance(Convert.ToDouble(FindAttribute(subtol.Attributes, "UpperLimit").Value.ToString()),
-                                                        Convert.ToDouble(FindAttribute(subtol.Attributes, "LowerLimit").Value.ToString()),
-                                                        conv.ConvertFromString(FindAttribute(subtol.Attributes, "Colour").Value.ToString()) as Brush,
-                                                        op,
-                                                        (Tolerance.ToleranceType)Enum.Parse(typeof(Tolerance.ToleranceType), FindAttribute(subtol.Attributes, "ToleranceType").Value.ToString()));
-
-                            comparisonRule.Tolerances.Add(t);
                         }
+                        Comparisons.Add(comparisonRule);
                     }
-                    Comparisons.Add(comparisonRule);
+                    catch
+                    {
+                    }
                 }
             }
         }

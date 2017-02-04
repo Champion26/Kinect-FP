@@ -25,6 +25,8 @@ namespace KinectWPF
 
         public List<Brush> Colours;
 
+        public List<GroupBox> GroupBoxes;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -36,7 +38,20 @@ namespace KinectWPF
             stream.checkAndRunSensor(canvas,
                                      camera);
             handSet(Streaming.HandPreference.Right);
+            populateLists();
             ChangeJointColour(Brushes.DeepSkyBlue);
+        }
+
+        private void populateLists()
+        {
+            populateGroupBoxList();
+        }
+
+        private void populateGroupBoxList()
+        {
+            this.GroupBoxes = new List<GroupBox>();
+            this.GroupBoxes.Add(grpBoxHandPref);
+            this.GroupBoxes.Add(grpBoxJointButtons);
         }
 
         private void btnAnalysis_Click(object sender, RoutedEventArgs e)
@@ -120,14 +135,23 @@ namespace KinectWPF
             this.stream.JointColour = colour;
         }
 
+        public void ChangeGroupBoxColours(Brush colour)
+        {
+            foreach (GroupBox gb in this.GroupBoxes)
+            {
+                gb.Foreground = colour;
+            }
+        }
+
         private void cbJointColour_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string s = e.AddedItems[0] as string;
 
             if (s != null)
             {
-                ChangeJointColour(new SolidColorBrush((Color)ColorConverter.ConvertFromString(s)));
-        
+                SolidColorBrush scb = new SolidColorBrush((Color)ColorConverter.ConvertFromString(s));
+                ChangeJointColour(scb);
+                ChangeGroupBoxColours(scb);
             }
         }
 

@@ -96,44 +96,52 @@ namespace KinectWPF
                   Tolerance OptimalTolerance = GetOptimalTolerance();
                   if (OptimalTolerance != null)
                   {
-                      string JointBName = this.StripPreferenceFromJointName(JointB.JointType.ToString()).ToLower();
-                      if (JointDirectionCheck(JointA, JointB))
+                      if (this.direction == Direction.None)
                       {
-                          string dir = "";
-                          switch (this.direction)
+                          string JointBName = this.StripPreferenceFromJointName(JointB.JointType.ToString()).ToLower();
+                          if (JointDirectionCheck(JointA, JointB))
                           {
-                              case (Direction.A_Above_B):
-                                  dir = " lower ";
-                                  break;
-                              case (Direction.B_Above_A):
-                                  dir = " raise ";
-                                  break;
+                              string dir = "";
+                              switch (this.direction)
+                              {
+                                  case (Direction.A_Above_B):
+                                      dir = " lower ";
+                                      break;
+                                  case (Direction.B_Above_A):
+                                      dir = " raise ";
+                                      break;
+                              }
+                              am.Error = String.Concat("Please", dir, JointBName, ".");
+                              am.Colour = FindToleranceByType(this, Tolerance.ToleranceType.Invalid).colour;
+                              return;
                           }
-                          am.Error = String.Concat("Please", dir, JointBName, ".");
-                          am.Colour = FindToleranceByType(this, Tolerance.ToleranceType.Invalid).colour;
-                          return;
+
+                          string direction = (this.direction == Direction.A_Above_B) ? "lower" : "raise";
+
+                          double distance = 0.0;
+                          if (value > OptimalTolerance.upperTolerance)
+                          {
+
+                              direction = (this.direction == Direction.A_Above_B) ? "raise" : "lower";
+                              distance = value - OptimalTolerance.upperTolerance;
+                          }
+                          else if (value < OptimalTolerance.lowerTolerance)
+                          {
+                              distance = OptimalTolerance.lowerTolerance - value;
+                          }
+
+                          StringBuilder str = new StringBuilder(string.Concat("Please ", direction, " your ", JointBName));
+
+                          str.Append(String.Concat(" by ", distance, "°"));
+
+                          str.Append(".");
+                          am.Error = str.ToString();
                       }
-
-                      string direction = (this.direction == Direction.A_Above_B) ? "lower" : "raise";
-
-                      double distance = 0.0;
-                      if (value > OptimalTolerance.upperTolerance)
+                      else
                       {
-
-                          direction = (this.direction == Direction.A_Above_B) ? "raise" : "lower";
-                          distance = value - OptimalTolerance.upperTolerance;
+                          am.Colour = Brushes.Red;
+                          am.Error = "There is an error with you comparison rule. Please check the XML file.";
                       }
-                      else if (value < OptimalTolerance.lowerTolerance)
-                      {
-                          distance = OptimalTolerance.lowerTolerance - value;
-                      }
-
-                      StringBuilder str = new StringBuilder(string.Concat("Please ", direction, " your ", JointBName));
-
-                      str.Append(String.Concat(" by ", distance, "°"));
-
-                      str.Append(".");
-                      am.Error = str.ToString();
                   }
                   else
                   {
@@ -172,14 +180,22 @@ namespace KinectWPF
           if (this.OriginNode != null)
           {
               Generate gn = new Generate();
-              this.direction = (Direction)Enum.Parse(typeof(Direction), gn.FindAttribute(OriginNode.Attributes, "AngleDirection").Value.ToString());
+              try
+              {
+                  this.direction = (Direction)Enum.Parse(typeof(Direction), gn.FindAttribute(OriginNode.Attributes, "AngleDirection").Value.ToString());
+              }
+              catch
+              {
+                  this.direction = Direction.None;
+              }
           }
       }
 
       public enum Direction
       {
           A_Above_B,
-          B_Above_A
+          B_Above_A,
+          None
       }
     }
 
