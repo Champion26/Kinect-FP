@@ -36,7 +36,8 @@ namespace KinectWPF
         {
             stream = new Streaming();
             stream.checkAndRunSensor(canvas,
-                                     camera);
+                                     camera,
+                                     this.txtInfo);
             handSet(Streaming.HandPreference.Right);
             populateLists();
             ChangeJointColour(Brushes.DeepSkyBlue);

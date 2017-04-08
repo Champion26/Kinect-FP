@@ -27,6 +27,6 @@
                 </Grid>
             </GroupBox>
         </Grid>
-
+        <TextBox x:Name="txtInfo" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="121" Margin="581,53,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="616" SpellCheck.IsEnabled="True" FontSize="48" TextAlignment="Center" Background="{x:Null}" IsReadOnly="True" Visibility="Hidden"/>
     </Grid>
 </Window>

@@ -96,8 +96,7 @@ namespace KinectWPF
                   Tolerance OptimalTolerance = GetOptimalTolerance();
                   if (OptimalTolerance != null)
                   {
-                      if (this.direction == Direction.None)
-                      {
+                      if (this.direction != Direction.None)                      {
                           string JointBName = this.StripPreferenceFromJointName(JointB.JointType.ToString()).ToLower();
                           if (JointDirectionCheck(JointA, JointB))
                           {
@@ -140,7 +139,7 @@ namespace KinectWPF
                       else
                       {
                           am.Colour = Brushes.Red;
-                          am.Error = "There is an error with you comparison rule. Please check the XML file.";
+                          am.Error = "There is an error with your comparison rule. Please check the XML file.";
                       }
                   }
                   else

@@ -19,6 +19,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Drawing;
+using System.Timers;
+using System.Threading;
+using System.Windows.Threading;
+using System.Windows.Media.Animation;   
 
 namespace KinectWPF
 {
@@ -34,6 +38,8 @@ namespace KinectWPF
         Canvas canvas;
         Image camera;
 
+        TextBox InfoBox;
+
         public Brush JointColour;
 
         public HandPreference hand = HandPreference.Right;
@@ -44,7 +50,45 @@ namespace KinectWPF
 
         private Generate generate;
 
+        private System.Timers.Timer aTimer;
+        private bool timerBlock = false;
+
+        public Streaming()
+        {
+            //CreateKinectCheckTimer();
+        }
+
         #region Image Streaming
+
+        private void CreateKinectCheckTimer()
+        {
+
+            aTimer = new System.Timers.Timer(1000);
+            aTimer.Elapsed += KinectCheck;
+            aTimer.Start();
+          
+        }
+
+        private void KinectCheck(Object source, ElapsedEventArgs e)
+        {
+            if (sensor != null && !this.timerBlock)
+            {
+                sensor.Open();
+
+                if (!sensor.IsAvailable)
+                {
+                    lock (this.InfoBox)
+                    {
+                        Action action = delegate()
+                        {
+                            WaitForKinect();
+                        };
+                        Application.Current.Dispatcher.Invoke(action);
+                        //WaitForKinect();
+                    }
+                }
+            }
+        }
 
         public void FillImageFromSensor()
         {
@@ -76,7 +120,8 @@ namespace KinectWPF
         }
 
         public void checkAndRunSensor(Canvas c = null,
-                                      Image i = null)
+                                      Image i = null,
+                                      TextBox inf = null)
         {
             if (c != null)
             {
@@ -88,6 +133,10 @@ namespace KinectWPF
                 this.camera = i;
             }
 
+            if (inf != null)
+            {
+                this.InfoBox = inf;
+            }
             generate = new Generate();
 
             generate.GetFromXml();
@@ -103,6 +152,7 @@ namespace KinectWPF
                     //check if avaliable 
                     if (sensor.IsAvailable)
                     {
+                        sensor.IsAvailableChanged += sensor_IsAvailableChanged;
                         //start image fill
                         FillImageFromSensor();
                     }
@@ -117,23 +167,108 @@ namespace KinectWPF
 
         }
 
+        void sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
+        {
+            WaitForKinect();
+        }
+
         public void colourFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
-            if (e.FrameReference == null)
+            try
             {
-                //check if frame reference is valid, if not stop 
-                return;
-            }
-            using (ColorFrame colourFrame = e.FrameReference.AcquireFrame())
-            {
-                if (colourFrame == null)
+
+
+                if (e.FrameReference == null)
                 {
-                    //check if colour frame is valid, if not stop 
+                    //check if frame reference is valid, if not stop 
                     return;
                 }
-                BitmapSource bmps = ConvertToBitmap(colourFrame);
-                camera.Source = bmps;
-      
+                using (ColorFrame colourFrame = e.FrameReference.AcquireFrame())
+                {
+                    if (colourFrame == null)
+                    {
+                        //check if colour frame is valid, if not stop 
+                        return;
+                    }
+                    BitmapSource bmps = ConvertToBitmap(colourFrame);
+                    camera.Source = bmps;
+
+
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        public void WaitForKinect()
+        {
+            if (sensor.IsAvailable)
+            {
+                //checkAndRunSensor();
+                //disconnect and reconnect to sensor
+                SetInfoMessage("Kinect Connection Re-Established", Brushes.Green);
+
+                aTimer = new System.Timers.Timer(3000);
+                aTimer.Elapsed += aTimer_Elapsed;
+                aTimer.Start();
+                //HideInfoMessage();
+                //remove Kinect Message
+            }
+            else
+            {
+                SetInfoMessage("Kinect Connection Lost", Brushes.Red, "WARNING");
+              
+            }
+            
+
+        }
+
+        void aTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            aTimer.Stop();
+            Action action = delegate()
+            {
+                HideInfoMessage();
+            };
+            Application.Current.Dispatcher.Invoke(action);
+        }
+        public void ShowInfoMessage()
+        {
+            if (this.InfoBox != null)
+            {
+                this.InfoBox.Visibility = Visibility.Visible;
+            }
+        }
+
+        public void SetInfoMessage(string message, Brush colour, string title = null)
+        {
+            if (this.InfoBox != null)
+            {
+                this.InfoBox.Text = "";
+                if (title != null)
+                {
+                    this.InfoBox.AppendText(title);
+                    this.InfoBox.AppendText(Environment.NewLine);
+                }
+                this.InfoBox.AppendText(message);
+                this.InfoBox.BorderBrush = colour;
+                this.InfoBox.Foreground = colour;
+                DoubleAnimation animation = new DoubleAnimation(1, TimeSpan.FromSeconds(1));
+                this.InfoBox.BeginAnimation(TextBox.OpacityProperty, animation);
+                ShowInfoMessage();
+            }
+        }
+
+        public void HideInfoMessage()
+        {
+            if (this.InfoBox != null)
+            {
+                DoubleAnimation animation = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
+                this.InfoBox.BeginAnimation(TextBox.OpacityProperty, animation);
+                System.Threading.Thread.Sleep(1000);
+                this.InfoBox.Visibility = Visibility.Hidden;
             }
         }
 
@@ -195,40 +330,76 @@ namespace KinectWPF
 
         private void Body_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
-            canvas.Children.Clear();
-
-            if (bodyOn)
+            try
             {
-            using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
-            {
-                if (bodyFrame != null)
-                {
-                    bodies = new Body[bodyFrame.BodyFrameSource.BodyCount];
+                    canvas.Children.Clear();
 
-                    bodyFrame.GetAndRefreshBodyData(bodies);
-                 
-                    foreach (var body in bodies)
+                    if (bodyOn)
                     {
-
-                        if (body.IsTracked)
+                    using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
+                    {
+                        if (bodyFrame != null)
                         {
-                            List<ActionMessage> amList = new List<ActionMessage>();
+                            bodies = new Body[bodyFrame.BodyFrameSource.BodyCount];
 
-                            List<Joint> drawJoints = new List<Joint>();
+                            bodyFrame.GetAndRefreshBodyData(bodies);
 
-                            foreach (Bone bone in generate.Bones)
+                            if (BodiesPresent(bodies))
                             {
-                                CheckAndDrawBone(body, bone.JointA, bone.JointB, ref amList, ref drawJoints);
-                            }
+                                if (this.InfoBox.Visibility == Visibility.Visible)
+                                {
+                                    HideInfoMessage();
+                                }
+                                foreach (var body in bodies)
+                                {
 
-                            DrawJoints(drawJoints);
-                       
+                                    if (body.IsTracked)
+                                    {
+                                        List<ActionMessage> amList = new List<ActionMessage>();
+
+                                        List<Joint> drawJoints = new List<Joint>();
+
+                                        foreach (Bone bone in generate.Bones)
+                                        {
+                                            CheckAndDrawBone(body, bone.JointA, bone.JointB, ref amList, ref drawJoints);
+                                        }
+
+                                        DrawJoints(drawJoints);
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //no bodies to detect
+                                SetInfoMessage("No subjects to analyse.", Brushes.Yellow, "WARNING");
+                                ShowInfoMessage();
+                            }
                         }
                     }
                 }
             }
-        }
+            catch{
+
+            }
            
+        }
+
+        private bool BodiesPresent(IList<Body> bodies)
+        {
+            if (bodies.Count > 0)
+            {
+                foreach (Body body in bodies)
+                {
+                    if (body.IsTracked)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
         }
 
         private void CheckAndDrawBone(Body body,
