@@ -69,6 +69,7 @@
     <Compile Include="ComparisonRuleAngle.cs" />
     <Compile Include="ComparisonRuleBehind.cs" />
     <Compile Include="Generate.cs" />
+    <Compile Include="InformationTextBox.cs" />
     <Compile Include="Splash.xaml.cs">
       <DependentUpon>Splash.xaml</DependentUpon>
     </Compile>
@@ -126,6 +127,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="DumpClass.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\InfoIcon.PNG" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

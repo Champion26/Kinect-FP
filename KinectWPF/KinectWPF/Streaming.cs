@@ -208,7 +208,7 @@ namespace KinectWPF
             {
                 //checkAndRunSensor();
                 //disconnect and reconnect to sensor
-                SetInfoMessage("Kinect Connection Re-Established", Brushes.Green);
+                SetInfoMessage(this.InfoBox, "Kinect Connection Re-Established", Brushes.Green);
 
                 aTimer = new System.Timers.Timer(3000);
                 aTimer.Elapsed += aTimer_Elapsed;
@@ -218,7 +218,7 @@ namespace KinectWPF
             }
             else
             {
-                SetInfoMessage("Kinect Connection Lost", Brushes.Red, "WARNING");
+                SetInfoMessage(this.InfoBox, "Kinect Connection Lost", Brushes.Red, "WARNING");
               
             }
             
@@ -230,45 +230,65 @@ namespace KinectWPF
             aTimer.Stop();
             Action action = delegate()
             {
-                HideInfoMessage();
+                HideInfoMessage(this.InfoBox);
             };
             Application.Current.Dispatcher.Invoke(action);
         }
-        public void ShowInfoMessage()
+        public void ShowInfoMessage(TextBox txtBox)
         {
-            if (this.InfoBox != null)
+            if (txtBox != null)
             {
-                this.InfoBox.Visibility = Visibility.Visible;
+                txtBox.Visibility = Visibility.Visible;
             }
         }
 
-        public void SetInfoMessage(string message, Brush colour, string title = null)
+        public void SetInfoMessage(TextBox txtBox,
+                                    string message,
+                                    Brush colour,
+                                    string title = null,
+                                    bool border = true,
+                                    int fontSize = 0)
         {
-            if (this.InfoBox != null)
+            if (txtBox != null)
             {
-                this.InfoBox.Text = "";
+                txtBox.Text = "";
+
+                Thickness defaultThickness = new Thickness(1, 1, 1, 1);
+
+                txtBox.FontSize = 48;
+
                 if (title != null)
                 {
-                    this.InfoBox.AppendText(title);
-                    this.InfoBox.AppendText(Environment.NewLine);
+                    txtBox.AppendText(title);
+                    txtBox.AppendText(Environment.NewLine);
                 }
-                this.InfoBox.AppendText(message);
-                this.InfoBox.BorderBrush = colour;
-                this.InfoBox.Foreground = colour;
+                txtBox.AppendText(message);
+                txtBox.BorderBrush = colour;
+                txtBox.Foreground = colour;
+
+                if (!border)
+                {
+                    txtBox.BorderThickness = new Thickness(0, 0, 0, 0);
+                }
+
+                if (fontSize > 0)
+                {
+                    txtBox.FontSize = fontSize; 
+                }
+
                 DoubleAnimation animation = new DoubleAnimation(1, TimeSpan.FromSeconds(1));
-                this.InfoBox.BeginAnimation(TextBox.OpacityProperty, animation);
-                ShowInfoMessage();
+                txtBox.BeginAnimation(TextBox.OpacityProperty, animation);
+                ShowInfoMessage(txtBox);
             }
         }
 
-        public void HideInfoMessage()
+        public void HideInfoMessage(TextBox txtBox)
         {
-            if (this.InfoBox != null)
+            if (txtBox != null)
             {
                 DoubleAnimation animation = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
-                this.InfoBox.BeginAnimation(TextBox.OpacityProperty, animation);
-                System.Threading.Thread.Sleep(1000);
-                this.InfoBox.Visibility = Visibility.Hidden;
+                txtBox.BeginAnimation(TextBox.OpacityProperty, animation);
+                //txtBox.Visibility = Visibility.Hidden;
             }
         }
 
@@ -348,7 +368,7 @@ namespace KinectWPF
                             {
                                 if (this.InfoBox.Visibility == Visibility.Visible)
                                 {
-                                    HideInfoMessage();
+                                    HideInfoMessage(this.InfoBox);
                                 }
                                 foreach (var body in bodies)
                                 {
@@ -372,8 +392,8 @@ namespace KinectWPF
                             else
                             {
                                 //no bodies to detect
-                                SetInfoMessage("No subjects to analyse.", Brushes.Yellow, "WARNING");
-                                ShowInfoMessage();
+                                SetInfoMessage(this.InfoBox, "No subjects to analyse.", Brushes.Yellow, "WARNING");
+                                ShowInfoMessage(this.InfoBox);
                             }
                         }
                     }

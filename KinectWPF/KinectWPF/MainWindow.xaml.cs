@@ -30,6 +30,10 @@ namespace KinectWPF
         public MainWindow()
         {
             InitializeComponent();
+            btnAnalysis.Background = Brushes.Green;
+            btnAnalysis.Foreground = Brushes.White;
+            //dynamically create InformationTextBox and place accordingly, allowing for modes to be set
+            //#FFCDD606
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -64,6 +68,8 @@ namespace KinectWPF
                     Dispatcher.Invoke(() =>
                     {
                         btnAnalysis.Content = "Stop";
+                        btnAnalysis.Background = Brushes.Red;
+                       
                     });
                     stream.StartBodyTracking();
                 }
@@ -72,6 +78,7 @@ namespace KinectWPF
                     Dispatcher.Invoke(() =>
                     {
                         btnAnalysis.Content = "Start Analysis";
+                        btnAnalysis.Background = Brushes.Green;
                     });
                     stream.StopBodyTracking();
                 }
@@ -106,6 +113,7 @@ namespace KinectWPF
 
         private void handSet(Streaming.HandPreference hp)
         {
+            var converter = new System.Windows.Media.BrushConverter();
             Button btn = FindCorrespondingButton(hp);
             
              if (this.stream != null)
@@ -113,7 +121,7 @@ namespace KinectWPF
                 this.stream.hand = hp;
             }
 
-             btn.Background = Brushes.Green;
+             btn.Background = (Brush)converter.ConvertFromString("#FFCDD606");
             
              foreach (Button b in GetAllHandButtons())
              {
@@ -185,6 +193,25 @@ namespace KinectWPF
             PopulateColours();
         }
 
+        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void ShowHandPreferenceInfoMessage()
+        {
+            stream.SetInfoMessage(txtControlInfo, "These buttons allow you to select your dominant hand. It is set to 'Right' by default.", Brushes.White, border: false, fontSize: 20);
+        }
+
+        private void Image_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ShowHandPreferenceInfoMessage();
+        }
+
+        private void Image_MouseLeave(object sender, MouseEventArgs e)
+        {
+            stream.HideInfoMessage(txtControlInfo);
+        }
 
               
 
