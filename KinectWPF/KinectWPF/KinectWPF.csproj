@@ -69,6 +69,7 @@
     <Compile Include="ComparisonRuleAngle.cs" />
     <Compile Include="ComparisonRuleBehind.cs" />
     <Compile Include="Generate.cs" />
+    <Compile Include="InfoBoxHandler.cs" />
     <Compile Include="InformationTextBox.cs" />
     <Compile Include="Splash.xaml.cs">
       <DependentUpon>Splash.xaml</DependentUpon>

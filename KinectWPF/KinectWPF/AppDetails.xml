@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <AppDetails>
-  <Bones>
+  <Bonesfsdfasdfasdf>
     <Bone JointA="Head" JointB="Neck"/>
     <Bone JointA="Neck" JointB="SpineShoulder"/>
     <Bone JointA="SpineShoulder" JointB="ShoulderLeft"/>
@@ -15,7 +15,7 @@
     <Bone JointA="ElbowLeft" JointB="WristLeft"/>
     <Bone JointA="WristLeft" JointB="HandLeft"/>
     <Bone JointA="HandLeft" JointB="HandTipLeft"/>
-  </Bones>
+  </Bonesfsdfasdfasdf>
   <Comparisons>
     <Comparison JointA="ElbowDominant" JointB="WristDominant" Comparison="Over"></Comparison>
     <Comparison JointA="ElbowDominant" JointB="WristDominant" Comparison="Under"></Comparison>

@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Reflection;
+using System.Timers;
+using System.Threading;
+using System.Windows.Threading;
+using System.Windows.Media.Animation;   
 
 namespace KinectWPF
 {
@@ -41,8 +45,10 @@ namespace KinectWPF
             stream = new Streaming();
             stream.checkAndRunSensor(canvas,
                                      camera,
-                                     this.txtInfo);
+                                     this.txtInfo,
+                                     this.btnAnalysis);
             handSet(Streaming.HandPreference.Right);
+
             populateLists();
             ChangeJointColour(Brushes.DeepSkyBlue);
         }
@@ -88,9 +94,10 @@ namespace KinectWPF
         #region Hand Preference 
         private void btnRightHand_Click(object sender, RoutedEventArgs e)
         {
-            handSet(Streaming.HandPreference.Right);        
+            handSet(Streaming.HandPreference.Right);
+    
         }
-
+              
         private Button FindCorrespondingButton(Streaming.HandPreference hp)
         {
             if (hp == Streaming.HandPreference.Right)
@@ -114,6 +121,7 @@ namespace KinectWPF
         private void handSet(Streaming.HandPreference hp)
         {
             var converter = new System.Windows.Media.BrushConverter();
+            ShowHandPreferenceInfoMessage(String.Format("{0} hand selected as dominant.", hp.ToString()));
             Button btn = FindCorrespondingButton(hp);
             
              if (this.stream != null)
@@ -130,8 +138,15 @@ namespace KinectWPF
                      b.Background = Brushes.White;
                  }
              }
-          
+             RemoveControlInfoMessage();
         }
+
+        private async void RemoveControlInfoMessage()
+        {
+                await Task.Delay(3000);
+                stream.ControlInfoHandler.HideInfoMessage();
+        }
+
 
         private void btnLeft_Click(object sender, RoutedEventArgs e)
         {
@@ -198,22 +213,32 @@ namespace KinectWPF
 
         }
 
-        private void ShowHandPreferenceInfoMessage()
+        private void ShowHandPreferenceInfoMessage(string txt)
         {
-            stream.SetInfoMessage(txtControlInfo, "These buttons allow you to select your dominant hand. It is set to 'Right' by default.", Brushes.White, border: false, fontSize: 20);
+            stream.ControlInfoHandler.InfoBox = txtControlInfo;
+            stream.ControlInfoHandler.SetInfoMessage(txt, this.stream.JointColour, border: false, fontSize: 20);
         }
 
         private void Image_MouseEnter(object sender, MouseEventArgs e)
         {
-            ShowHandPreferenceInfoMessage();
+            ShowHandPreferenceInfoMessage("These buttons allow you to select your dominant hand. It is set to 'Right' by default.");
         }
 
         private void Image_MouseLeave(object sender, MouseEventArgs e)
         {
-            stream.HideInfoMessage(txtControlInfo);
+            stream.ControlInfoHandler.HideInfoMessage();
         }
 
-              
+        private void imgJointColour_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ShowHandPreferenceInfoMessage("This drop down allows you to set the colour of the joints seen during analysis. It also sets the font colour for the control titles.");
+        }
+
+        private void imgAnalysis_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ShowHandPreferenceInfoMessage("This button will start and stop the form analysis.");
+        }
+
 
     }
 }

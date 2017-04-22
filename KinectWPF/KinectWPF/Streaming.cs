@@ -38,13 +38,40 @@ namespace KinectWPF
         Canvas canvas;
         Image camera;
 
+        Button analysisButton;
+        public InfoBoxHandler InfoHandler;
         TextBox InfoBox;
+
+        public InfoBoxHandler ControlInfoHandler;
 
         public Brush JointColour;
 
         public HandPreference hand = HandPreference.Right;
 
-        public bool bodyOn = false;
+        private bool _bodyOn;
+
+        public bool bodyOn
+        {
+            get
+            {
+                return _bodyOn;
+            }
+            set
+            {
+                _bodyOn = value;
+                if (!value)
+                {
+                    if (this.InfoBox.Text == this.NoSubjectTextComparison && this.InfoBox.Visibility == Visibility.Visible)
+                    {
+                        InfoHandler.HideInfoMessage();
+                    }
+                }
+            }
+        }
+
+        private string NoSubjectText = "No subjects to analyse.";
+        private string NoSubjectTextComparison;
+
 
         System.Windows.Controls.Label window;
 
@@ -119,9 +146,20 @@ namespace KinectWPF
             return false;
         }
 
+        private async void ShowXMLIssueMessage(XMLIssueMessage xim)
+        {
+            if (xim.preventAnalysis)
+            {
+                analysisButton.IsEnabled = false;
+            }
+            await Task.Delay(1000);
+            InfoHandler.SetInfoMessage(xim.msg, xim.colour, "WARNING", revert:true);
+        }
+
         public void checkAndRunSensor(Canvas c = null,
                                       Image i = null,
-                                      TextBox inf = null)
+                                      TextBox inf = null,
+                                      Button analysis = null)
         {
             if (c != null)
             {
@@ -136,10 +174,21 @@ namespace KinectWPF
             if (inf != null)
             {
                 this.InfoBox = inf;
+                InfoHandler = new InfoBoxHandler(this.InfoBox);
             }
+            ControlInfoHandler = new InfoBoxHandler();
+            if (analysis != null)
+            {
+                this.analysisButton = analysis;
+            }
+
             generate = new Generate();
 
-            generate.GetFromXml();
+            XMLIssueMessage issueMsg = generate.GetFromXml();
+            if (issueMsg.issuePresent)
+            {
+                ShowXMLIssueMessage(issueMsg);
+            }
 
             if (canvas != null)
             {
@@ -176,9 +225,7 @@ namespace KinectWPF
         {
             try
             {
-
-
-                if (e.FrameReference == null)
+                 if (e.FrameReference == null)
                 {
                     //check if frame reference is valid, if not stop 
                     return;
@@ -191,15 +238,10 @@ namespace KinectWPF
                         return;
                     }
                     BitmapSource bmps = ConvertToBitmap(colourFrame);
-                    camera.Source = bmps;
-
-
+                    camera.Source = bmps;                    
                 }
             }
-            catch
-            {
-
-            }
+            catch{ }
         }
 
         public void WaitForKinect()
@@ -208,7 +250,7 @@ namespace KinectWPF
             {
                 //checkAndRunSensor();
                 //disconnect and reconnect to sensor
-                SetInfoMessage(this.InfoBox, "Kinect Connection Re-Established", Brushes.Green);
+                InfoHandler.SetInfoMessage("Kinect Connection Re-Established", Brushes.Green);
 
                 aTimer = new System.Timers.Timer(3000);
                 aTimer.Elapsed += aTimer_Elapsed;
@@ -218,7 +260,7 @@ namespace KinectWPF
             }
             else
             {
-                SetInfoMessage(this.InfoBox, "Kinect Connection Lost", Brushes.Red, "WARNING");
+                InfoHandler.SetInfoMessage("Kinect Connection Lost", Brushes.Red, "WARNING");
               
             }
             
@@ -230,67 +272,13 @@ namespace KinectWPF
             aTimer.Stop();
             Action action = delegate()
             {
-                HideInfoMessage(this.InfoBox);
+                InfoHandler.HideInfoMessage();
             };
             Application.Current.Dispatcher.Invoke(action);
         }
-        public void ShowInfoMessage(TextBox txtBox)
-        {
-            if (txtBox != null)
-            {
-                txtBox.Visibility = Visibility.Visible;
-            }
-        }
+       
 
-        public void SetInfoMessage(TextBox txtBox,
-                                    string message,
-                                    Brush colour,
-                                    string title = null,
-                                    bool border = true,
-                                    int fontSize = 0)
-        {
-            if (txtBox != null)
-            {
-                txtBox.Text = "";
-
-                Thickness defaultThickness = new Thickness(1, 1, 1, 1);
-
-                txtBox.FontSize = 48;
-
-                if (title != null)
-                {
-                    txtBox.AppendText(title);
-                    txtBox.AppendText(Environment.NewLine);
-                }
-                txtBox.AppendText(message);
-                txtBox.BorderBrush = colour;
-                txtBox.Foreground = colour;
-
-                if (!border)
-                {
-                    txtBox.BorderThickness = new Thickness(0, 0, 0, 0);
-                }
-
-                if (fontSize > 0)
-                {
-                    txtBox.FontSize = fontSize; 
-                }
-
-                DoubleAnimation animation = new DoubleAnimation(1, TimeSpan.FromSeconds(1));
-                txtBox.BeginAnimation(TextBox.OpacityProperty, animation);
-                ShowInfoMessage(txtBox);
-            }
-        }
-
-        public void HideInfoMessage(TextBox txtBox)
-        {
-            if (txtBox != null)
-            {
-                DoubleAnimation animation = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
-                txtBox.BeginAnimation(TextBox.OpacityProperty, animation);
-                //txtBox.Visibility = Visibility.Hidden;
-            }
-        }
+        
 
         public BitmapSource ConvertToBitmap(ColorFrame frame)
         {
@@ -368,7 +356,7 @@ namespace KinectWPF
                             {
                                 if (this.InfoBox.Visibility == Visibility.Visible)
                                 {
-                                    HideInfoMessage(this.InfoBox);
+                                    InfoHandler.HideInfoMessage();
                                 }
                                 foreach (var body in bodies)
                                 {
@@ -392,16 +380,15 @@ namespace KinectWPF
                             else
                             {
                                 //no bodies to detect
-                                SetInfoMessage(this.InfoBox, "No subjects to analyse.", Brushes.Yellow, "WARNING");
-                                ShowInfoMessage(this.InfoBox);
+                                InfoHandler.SetInfoMessage(this.NoSubjectText, Brushes.Yellow, "WARNING", revert:true);
+                                this.NoSubjectTextComparison = this.InfoBox.Text;
+                                InfoHandler.ShowInfoMessage(this.InfoBox);
                             }
                         }
                     }
                 }
             }
-            catch{
-
-            }
+            catch{ }
            
         }
 

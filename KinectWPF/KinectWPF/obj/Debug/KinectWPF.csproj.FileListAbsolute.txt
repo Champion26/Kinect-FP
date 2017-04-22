@@ -70,3 +70,5 @@ C:\Users\mcham\Downloads\Kinect-FP-master\KinectWPF\KinectWPF\obj\Debug\KinectWP
 C:\Users\mcham\Downloads\Kinect-FP-master\KinectWPF\KinectWPF\obj\Debug\KinectWPF.g.resources
 C:\Users\mcham\Downloads\Kinect-FP-master\KinectWPF\KinectWPF\obj\Debug\KinectWPF.Properties.Resources.resources
 C:\Users\mcham\Downloads\Kinect-FP-master\KinectWPF\KinectWPF\obj\Debug\KinectWPF.csproj.GenerateResource.Cache
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\obj\Debug\Splash.baml
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\obj\Debug\Splash.g.cs

@@ -51,16 +51,53 @@ namespace KinectWPF
 
         }
   
-        public void GetFromXml()
+        public XMLIssueMessage GetFromXml()
         {
-            XmlDocument xml = new XmlDocument();
-            xml.Load(String.Concat(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, "\\AppDetails.xml"));
-            if (xml.DocumentElement != null)
+            XMLIssueMessage msg = new XMLIssueMessage();
+
+            try
             {
-                XmlElement root = xml.DocumentElement;
-                GenerateBonesAndJoints(root);
-                GenerateComparisonRules(root);
+                XmlDocument xml = new XmlDocument();
+                xml.Load(String.Concat(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, "\\AppDetails.xml"));
+                if (xml.DocumentElement != null)
+                {
+                    XmlElement root = xml.DocumentElement;
+                    try
+                    {
+                        GenerateBonesAndJoints(root);
+                        if (Bones.Count == 0)
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    catch
+                    {
+                        msg = new XMLIssueMessage(true, "There is an issue generating the joints and bones. Please check the XML rule sheet.", Brushes.Red, true);
+                    }
+
+                    try
+                    {
+                        GenerateComparisonRules(root);
+                        if (Comparisons.Count == 0)
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    catch
+                    {
+                        msg = new XMLIssueMessage(true, "There is an issue generating the comparison rules. Please check the XML rule sheet.", Brushes.Red, true);
+                    }
+
+                    
+                }
             }
+            catch
+            {
+                msg = new XMLIssueMessage(true, "There is an issue with the XML rule sheet", Brushes.Red, true);
+            }
+
+            return msg;
+          
         }
 
         private void GenerateBonesAndJoints(XmlElement root)
@@ -78,8 +115,8 @@ namespace KinectWPF
                     }
                     catch
                     {
-                    }
-                
+
+                    }                
                 }
             }
         }
@@ -114,7 +151,7 @@ namespace KinectWPF
                                 BrushConverter conv = new BrushConverter();
 
                                 bool op = false;
-                                //TODO FIX this
+                         
                                 if (FindAttribute(subtol.Attributes, "Optimal") != null)
                                 {
                                     op = Convert.ToBoolean(FindAttribute(subtol.Attributes, "Optimal").Value.ToString());
@@ -130,9 +167,7 @@ namespace KinectWPF
 
                                     comparisonRule.Tolerances.Add(t);
                                 }
-                                catch
-                                {
-                                }
+                                catch {}
                                
                             }
                         }
@@ -163,4 +198,85 @@ namespace KinectWPF
 
         
     }
+}
+
+public class XMLIssueMessage
+{
+
+    private bool _preventAnalysis;
+
+    public bool preventAnalysis
+    {
+        get
+        {
+            return _preventAnalysis;
+        }
+        set
+        {
+            _preventAnalysis = value;
+        }
+    }
+
+    private bool _issuePresent = false;
+
+    public bool issuePresent
+    {
+        get
+        {
+            return _issuePresent;
+        }
+        set
+        {
+            _issuePresent = value;
+        }
+    }
+
+    private Brush _colour;
+
+    public Brush colour
+    {
+        get
+        {
+            return _colour;
+        }
+        set
+        {
+            _colour = value;
+        }
+    }
+
+    private string _msg;
+    public string msg
+    {
+        get
+        {
+            return _msg;
+        }
+        set
+        {
+            _msg = value;
+        }
+    }
+
+    public XMLIssueMessage(bool issue = false,
+                            string txt = null,
+                           Brush brush = null,
+                           bool prevent = false)
+    {
+
+        issuePresent = issue;
+        preventAnalysis = prevent;
+
+        if (txt != null)
+        {
+            msg = txt;
+        }
+
+        if (brush != null)
+        {
+            colour = brush;
+        }
+
+    }
+
 }
