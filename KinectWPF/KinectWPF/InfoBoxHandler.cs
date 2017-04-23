@@ -115,9 +115,13 @@ namespace KinectWPF
             if (InfoBox != null)
             {
 
-                if (inUse && current.revert && !previousMessages.Contains(current))
+                if (inUse)
                 {
-                    previousMessages.Add(new InfoBoxMessage(txt: InfoBox.Text, brush: InfoBox.Foreground));
+                    if (current != null && current.revert && !previousMessages.Contains(current))
+                    {
+                        // && !current.msg.Equals(InfoBox.Text)
+                        previousMessages.Add(new InfoBoxMessage(txt: current.msg, brush: current.colour, revertAfterReplaced: current.revert));
+                    }
                 }
 
                 if (!inUse)
@@ -154,12 +158,10 @@ namespace KinectWPF
                 InfoBox.BeginAnimation(TextBox.OpacityProperty, animation);
                 ShowInfoMessage(InfoBox);
 
+              
+
                 current = new InfoBoxMessage(txt: InfoBox.Text, brush: InfoBox.Foreground, revertAfterReplaced:revert);
 
-                if (revert)
-                {
-                    previousMessages.Add(new InfoBoxMessage(txt: InfoBox.Text, brush: InfoBox.Foreground, revertAfterReplaced:revert));
-                }
             }
         }
 
@@ -172,7 +174,33 @@ namespace KinectWPF
                     previousMessages.Remove(current);
                 }
 
-                if (previousMessages.Count == 0)
+                bool allDuplicates = true;
+
+                if (previousMessages.Count > 0)
+                {
+                    List<InfoBoxMessage> remove = new List<InfoBoxMessage>();
+                    foreach (InfoBoxMessage inf in previousMessages)
+                    {
+                        if (current.msg != inf.msg)
+                        {
+                            allDuplicates = false;
+                        }
+                        else
+                        {
+                            remove.Add(inf);
+                        }
+                    }
+
+                    if (remove.Count > 0)
+                    {
+                        foreach (InfoBoxMessage inf in remove)
+                        {
+                            previousMessages.Remove(inf);
+                        }
+                    }
+                }
+
+                if (previousMessages.Count == 0 || allDuplicates)
                 {
                     inUse = false;
                     DoubleAnimation animation = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
@@ -181,9 +209,8 @@ namespace KinectWPF
                 else
                 {
                     Revert();
-                }
+                }               
                 
-                //txtBox.Visibility = Visibility.Hidden;
             }
         }
 

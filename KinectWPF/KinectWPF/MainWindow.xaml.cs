@@ -52,7 +52,7 @@ namespace KinectWPF
             populateLists();
             ChangeJointColour(Brushes.DeepSkyBlue);
             //trigger selection Change
-            this.cbJointColour.SelectedItem = "DeepSkyBlue";
+            this.cbJointColour.SelectedItem = "Deep Sky Blue";
         }
 
         private void populateLists()
@@ -175,7 +175,7 @@ namespace KinectWPF
 
             if (s != null)
             {
-                SolidColorBrush scb = new SolidColorBrush((Color)ColorConverter.ConvertFromString(s));
+                SolidColorBrush scb = new SolidColorBrush((Color)ColorConverter.ConvertFromString(s.Replace(" ", "")));
                 ChangeJointColour(scb);
                 ChangeGroupBoxColours(scb);
             }
@@ -194,8 +194,26 @@ namespace KinectWPF
                 string name = prop.Name;
                 SolidColorBrush brush = (SolidColorBrush)prop.GetValue(null, null);
                 var colorname = GetColorName(brush.Color);
-                cbJointColour.Items.Add(colorname);
+                cbJointColour.Items.Add(AddSpacesToSentence(colorname, false));
             }
+        }
+
+        private string AddSpacesToSentence(string text, bool preserveAcronyms)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+            StringBuilder newText = new StringBuilder(text.Length * 2);
+            newText.Append(text[0]);
+            for (int i = 1; i < text.Length; i++)
+            {
+                if (char.IsUpper(text[i]))
+                    if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])) ||
+                        (preserveAcronyms && char.IsUpper(text[i - 1]) &&
+                         i < text.Length - 1 && !char.IsUpper(text[i + 1])))
+                        newText.Append(' ');
+                newText.Append(text[i]);
+            }
+            return newText.ToString();
         }
 
         static string GetColorName(Color col)
