@@ -51,6 +51,8 @@ namespace KinectWPF
 
             populateLists();
             ChangeJointColour(Brushes.DeepSkyBlue);
+            //trigger selection Change
+            this.cbJointColour.SelectedItem = "DeepSkyBlue";
         }
 
         private void populateLists()

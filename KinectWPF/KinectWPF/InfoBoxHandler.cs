@@ -99,7 +99,7 @@ namespace KinectWPF
             {
                 await Task.Delay(1000);
                 InfoBoxMessage replacement = previousMessages[previousMessages.Count - 1];
-                SetInfoMessage(replacement.msg, replacement.colour);
+                SetInfoMessage(replacement.msg, replacement.colour, revert:replacement.revert);
                 previousMessages.Remove(replacement);
             }
         }
@@ -154,7 +154,7 @@ namespace KinectWPF
                 InfoBox.BeginAnimation(TextBox.OpacityProperty, animation);
                 ShowInfoMessage(InfoBox);
 
-                current = new InfoBoxMessage(txt: InfoBox.Text, brush: InfoBox.Foreground);
+                current = new InfoBoxMessage(txt: InfoBox.Text, brush: InfoBox.Foreground, revertAfterReplaced:revert);
 
                 if (revert)
                 {
