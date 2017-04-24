@@ -133,7 +133,7 @@ namespace KinectWPF
 
                 Thickness defaultThickness = new Thickness(1, 1, 1, 1);
 
-                InfoBox.FontSize = 48;
+                //InfoBox.FontSize = 48;
 
                 if (title != null)
                 {

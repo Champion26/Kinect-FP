@@ -72,3 +72,28 @@ C:\Users\mcham\Downloads\Kinect-FP-master\KinectWPF\KinectWPF\obj\Debug\KinectWP
 C:\Users\mcham\Downloads\Kinect-FP-master\KinectWPF\KinectWPF\obj\Debug\KinectWPF.csproj.GenerateResource.Cache
 C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\obj\Debug\Splash.baml
 C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\obj\Debug\Splash.g.cs
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\KinectWPF.exe.config
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.exe
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.pdb
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\KinectWPF.exe.manifest
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\KinectWPF.application
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\KinectWPF.exe
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\KinectWPF.pdb
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\Microsoft.Kinect.dll
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\Microsoft.Kinect.Tools.dll
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\Microsoft.Kinect.xml
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\Microsoft.Kinect.Tools.xml
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.csprojResolveAssemblyReference.cache
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\MainWindow.baml
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\Splash.baml
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\MainWindow.g.cs
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\Splash.g.cs
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\App.g.cs
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF_MarkupCompile.cache
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.g.resources
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.Properties.Resources.resources
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.csproj.GenerateResource.Cache
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.exe.manifest
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.application
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\AppDetails.xml
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF_Content.g.cs

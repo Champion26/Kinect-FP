@@ -29,19 +29,23 @@ namespace KinectWPF
 
         public List<Brush> Colours;
 
-        public List<GroupBox> GroupBoxes;
+        public List<Label> LabelTexts;
 
+        
         public MainWindow()
         {
             InitializeComponent();
             btnAnalysis.Background = Brushes.Green;
             btnAnalysis.Foreground = Brushes.White;
-            //dynamically create InformationTextBox and place accordingly, allowing for modes to be set
-            //#FFCDD606
+         
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.SizeToContent = SizeToContent.WidthAndHeight;
+
+         
+            
             stream = new Streaming();
             stream.checkAndRunSensor(canvas,
                                      camera,
@@ -57,14 +61,14 @@ namespace KinectWPF
 
         private void populateLists()
         {
-            populateGroupBoxList();
+            populateLabelsList();
         }
 
-        private void populateGroupBoxList()
+        private void populateLabelsList()
         {
-            this.GroupBoxes = new List<GroupBox>();
-            this.GroupBoxes.Add(grpBoxHandPref);
-            this.GroupBoxes.Add(grpBoxJointButtons);
+            this.LabelTexts = new List<Label>();
+            this.LabelTexts.Add(lblHandPreference);
+            this.LabelTexts.Add(lblJointColour);
         }
 
         private void btnAnalysis_Click(object sender, RoutedEventArgs e)
@@ -163,7 +167,7 @@ namespace KinectWPF
 
         public void ChangeGroupBoxColours(Brush colour)
         {
-            foreach (GroupBox gb in this.GroupBoxes)
+            foreach (Label gb in this.LabelTexts)
             {
                 gb.Foreground = colour;
             }
@@ -257,6 +261,64 @@ namespace KinectWPF
         private void imgAnalysis_MouseEnter(object sender, MouseEventArgs e)
         {
             ShowHandPreferenceInfoMessage("This button will start and stop the form analysis.");
+        }
+
+        private void TriggerElementResize(double newHeight, double newWidth)
+        {
+            if (this.IsLoaded)
+            {
+                camera.Height = newHeight;
+                camera.Width = newWidth;
+                canvas.Height = newHeight;
+                canvas.Width = newWidth;  
+            }
+                      
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (e != null)
+            {               
+                TriggerElementResize(e.NewSize.Height, e.NewSize.Width);
+            }
+
+        }
+
+        private void camera_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            this.controlCanvas.Width = camera.ActualWidth;
+            this.controlCanvas.Height = camera.ActualHeight;
+            txtInfo.Width = camera.ActualWidth / 3.11;
+            txtInfo.FontSize = camera.ActualWidth / 40;
+
+            if (txtInfo.FontSize / 2 >= 16)
+            {
+                this.lblHandPreference.FontSize = txtInfo.FontSize / 2;
+                this.lblJointColour.FontSize = txtInfo.FontSize / 2;
+            }
+
+        }
+
+        private void controlCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {         
+                    
+
+            Canvas.SetBottom(this.DominantHandCanvas, this.controlCanvas.Height / 18);
+            Canvas.SetLeft(this.DominantHandCanvas, 0);
+
+            Canvas.SetBottom(this.AnalysisCanvas, this.controlCanvas.Height / 12.7);
+            Canvas.SetRight(this.AnalysisCanvas, this.controlCanvas.Width / 32);
+
+            Canvas.SetTop(this.ColourCanvas, this.controlCanvas.Height / 13.5);
+            Canvas.SetRight(this.ColourCanvas, this.controlCanvas.Width / 32);
+
+
+            Canvas.SetTop(this.txtInfo, this.controlCanvas.Height / 5.4);
+            Canvas.SetLeft(this.txtInfo, this.controlCanvas.Width / 2.94);
+
+            Canvas.SetTop(this.txtControlInfo, this.controlCanvas.Height / 1.8);
+            Canvas.SetLeft(this.txtControlInfo, this.controlCanvas.Width / 2.94);
+
         }
 
 

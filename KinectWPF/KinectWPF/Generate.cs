@@ -58,37 +58,57 @@ namespace KinectWPF
             try
             {
                 XmlDocument xml = new XmlDocument();
-                xml.Load(String.Concat(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, "\\AppDetails.xml"));
+                string filePath = String.Concat(System.AppDomain.CurrentDomain.BaseDirectory, "\\AppDetails.xml");
+           
+                try
+                {
+                    xml.Load(filePath);
+                }
+                catch
+                {
+                    msg = new XMLIssueMessage(true, String.Format("The XML rule sheet cannot be loaded. {0}", filePath), Brushes.Red, true);
+                }
+              
                 if (xml.DocumentElement != null)
                 {
-                    XmlElement root = xml.DocumentElement;
+                    XmlElement root = null;
                     try
                     {
-                        GenerateBonesAndJoints(root);
-                        if (Bones.Count == 0)
-                        {
-                            throw new Exception();
-                        }
+                        root = xml.DocumentElement;
                     }
                     catch
                     {
-                        msg = new XMLIssueMessage(true, "There is an issue generating the joints and bones. Please check the XML rule sheet.", Brushes.Red, true);
+                        msg = new XMLIssueMessage(true, "The XML root cannot be instantiated.", Brushes.Red, true);
                     }
 
-                    try
+                    if (root != null)
                     {
-                        GenerateComparisonRules(root);
-                        if (Comparisons.Count == 0)
+                        try
                         {
-                            throw new Exception();
+                            GenerateBonesAndJoints(root);
+                            if (Bones.Count == 0)
+                            {
+                                throw new Exception();
+                            }
+                        }
+                        catch
+                        {
+                            msg = new XMLIssueMessage(true, "There is an issue generating the joints and bones. Please check the XML rule sheet.", Brushes.Red, true);
+                        }
+
+                        try
+                        {
+                            GenerateComparisonRules(root);
+                            if (Comparisons.Count == 0)
+                            {
+                                throw new Exception();
+                            }
+                        }
+                        catch
+                        {
+                            msg = new XMLIssueMessage(true, "There is an issue generating the comparison rules. Please check the XML rule sheet.", Brushes.Red, true);
                         }
                     }
-                    catch
-                    {
-                        msg = new XMLIssueMessage(true, "There is an issue generating the comparison rules. Please check the XML rule sheet.", Brushes.Red, true);
-                    }
-
-                    
                 }
             }
             catch
