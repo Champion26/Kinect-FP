@@ -1,11 +1,16 @@
 ﻿<Window x:Class="KinectWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Form Analysis" Width="1920" Loaded="Window_Loaded" SizeChanged="Window_SizeChanged" MinHeight="630" MaxHeight="1080" Height="1080" MinWidth="1120" MaxWidth="1920">
+        Title="Form Analysis" Width="1260" Loaded="Window_Loaded" SizeChanged="Window_SizeChanged" MinHeight="700" MaxHeight="700" Height="700" MinWidth="1260" MaxWidth="1260">
+    
     <Grid>
-        <Image Name="camera" Margin="10,0,10,10" SizeChanged="camera_SizeChanged" />
+        <Image Name="camera" Margin="10,0,10,10" SizeChanged="camera_SizeChanged" Loaded="camera_Loaded" SourceUpdated="camera_SourceUpdated" TargetUpdated="camera_TargetUpdated" />
         <Canvas Name="canvas" Margin="10,0,10,10" />
         <Canvas Name="controlCanvas" Margin="10,0,10,10" SizeChanged="controlCanvas_SizeChanged">
+            <Label x:Name="lblWidth"  FontSize="24" Content="Width:" Canvas.Left="80" Canvas.Top="20" Foreground="White"/>
+            <Label x:Name="lblHeight"  FontSize="24" Content="Height:" Canvas.Left="400" Canvas.Top="20" Foreground="White"/>
+
+
             <TextBox x:Name="txtInfo" Canvas.Top="200" Canvas.Left="652" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="TextBox" Width="616" SpellCheck.IsEnabled="True" FontSize="48" TextAlignment="Center" Background="{x:Null}" IsReadOnly="True" Visibility="Hidden"/>
             <TextBox x:Name="txtControlInfo" Canvas.Top="700" Canvas.Left="652" HorizontalAlignment="Left" Height="121" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="616" SpellCheck.IsEnabled="True" FontSize="48" TextAlignment="Center" Background="{x:Null}" IsReadOnly="True" Visibility="Hidden"/>
 

@@ -97,3 +97,9 @@ C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\o
 C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF.application
 C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\bin\Debug\AppDetails.xml
 C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF - Final\KinectWPF\obj\Debug\KinectWPF_Content.g.cs
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\bin\Debug\AppDetails.xml
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\bin\Debug\KinectWPF.exe.manifest
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\bin\Debug\KinectWPF.application
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\obj\Debug\KinectWPF_Content.g.cs
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\obj\Debug\KinectWPF.exe.manifest
+C:\Users\mcham\OneDrive\Documents\3rd Year Project\KinectWPF\KinectWPF\obj\Debug\KinectWPF.application

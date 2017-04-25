@@ -48,6 +48,11 @@ namespace KinectWPF
 
         public HandPreference hand = HandPreference.Right;
 
+        public double XJointOffsetPercentage;
+        public double YJointOffsetPercentage;
+
+        public bool OffsetsGenerated;
+
         private bool _bodyOn;
 
         public bool bodyOn
@@ -72,8 +77,8 @@ namespace KinectWPF
         private string NoSubjectText = "No subjects to analyse.";
         private string NoSubjectTextComparison;
 
-
-        System.Windows.Controls.Label window;
+        public WindowDetails wd;
+        Window window;
 
         private Generate generate;
 
@@ -82,6 +87,9 @@ namespace KinectWPF
 
         public Streaming()
         {
+            OffsetsGenerated = false;
+            XJointOffsetPercentage = 0;
+            YJointOffsetPercentage = 0;
             //CreateKinectCheckTimer();
         }
 
@@ -156,10 +164,17 @@ namespace KinectWPF
             InfoHandler.SetInfoMessage(xim.msg, xim.colour, "WARNING", revert:true);
         }
 
+        public void CreateCameraDetailsReference(ref WindowDetails d)
+        {
+            this.wd = d;
+        }
+
         public void checkAndRunSensor(Canvas c = null,
                                       Image i = null,
                                       TextBox inf = null,
-                                      Button analysis = null)
+                                      Button analysis = null,
+                                      Window win = null,
+                                      WindowDetails  wd = null )
         {
             if (c != null)
             {
@@ -181,6 +196,14 @@ namespace KinectWPF
             {
                 this.analysisButton = analysis;
             }
+
+            if (win != null)
+            {
+                window = win;
+            }
+
+            wd = new WindowDetails(i.Width, i.Height);
+
 
             generate = new Generate();
 
@@ -238,10 +261,36 @@ namespace KinectWPF
                         return;
                     }
                     BitmapSource bmps = ConvertToBitmap(colourFrame);
-                    camera.Source = bmps;                    
+                    camera.Source = bmps;
+                    
+                                      
                 }
             }
             catch{ }
+        }
+
+        private double ReductionPercentage(double originalValue, double currentValue)
+        {
+
+            double diff = (originalValue - currentValue);
+
+
+            return Math.Round((diff / originalValue) * 100, 2);
+
+        }
+
+        public void GenerateOffsets()
+        {
+            if (wd.originalWidth != 0)
+            {
+                XJointOffsetPercentage = ReductionPercentage(1850, camera.ActualWidth);
+            }
+            if (wd.originalHeight != 0)
+            {
+                YJointOffsetPercentage = ReductionPercentage(1056, camera.ActualHeight);
+            }
+
+            OffsetsGenerated = true;
         }
 
         public void WaitForKinect()
@@ -284,6 +333,8 @@ namespace KinectWPF
         {
             int width = frame.FrameDescription.Width;
             int height = frame.FrameDescription.Height;
+
+
             PixelFormat format = PixelFormats.Bgr32;
 
             byte[] pixels = new byte[width * height * ((format.BitsPerPixel + 7) / 8)];
@@ -454,12 +505,48 @@ namespace KinectWPF
             return false;
         }
 
+        public float DoubleToFloat(double db)
+        {
+            float result = (float)db;
+            if (float.IsPositiveInfinity(result))
+            {
+                result = float.MaxValue;
+            }
+            else if (float.IsNegativeInfinity(result))
+            {
+                result = float.MinValue;
+            }
+
+            return result; 
+        }
+
+        private float AdjustCoordinates(double coordinate, double percentage)
+        {
+            return DoubleToFloat(coordinate - (coordinate * percentage / 100));
+        }
+
         public ColorSpacePoint GetXandYColourPoint(Joint joint)
         {
 
             CameraSpacePoint jointPosition = joint.Position;
             ColorSpacePoint colorPoint = sensor.CoordinateMapper.MapCameraPointToColorSpace(jointPosition);
-            
+
+            colorPoint.X = AdjustCoordinates(colorPoint.X, this.XJointOffsetPercentage);
+            // + ((camera.Height - camera.ActualHeight)/2)
+            colorPoint.Y =  DoubleToFloat(AdjustCoordinates(colorPoint.Y, this.YJointOffsetPercentage));
+
+            //OriginalValue - (OriginalValue * Percent / 100)    
+
+            //if (wd.originalWidth != window.Width)
+            //{
+            //    colorPoint.X -= DoubleToFloat(wd.originalWidth - this.camera.ActualWidth);
+            //}
+
+            //if (wd.originalHeight != window.Height)
+            //{
+            //    colorPoint.Y -= DoubleToFloat(wd.originalHeight - this.camera.ActualHeight);
+            //}
+
             return colorPoint;
 
         }

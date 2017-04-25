@@ -4,7 +4,7 @@
         Title="Splash" Height="483" Width="795" Loaded="Window_Loaded">
     <Grid Margin="0,0,2,12">
         <Button x:Name="btnStart" Content="Start" HorizontalAlignment="Left" Margin="227,232,0,0" VerticalAlignment="Top" Width="322" Height="132" Click="btnStart_Click" Loaded="btnStart_Loaded" Background="#FF009700" Foreground="White" FontSize="48" IsEnabled="False"/>
-        <Label x:Name="lblWarning" Content="Please connect a Kinect 2." HorizontalAlignment="Left" Margin="304,174,0,0" VerticalAlignment="Top" Height="58" Width="174" FontSize="14"/>
+        <Label x:Name="lblWarning" Content="Please connect a Kinect version 2." HorizontalAlignment="Left" Margin="285,174,0,0" VerticalAlignment="Top" Height="58" Width="223" FontSize="14"/>
         <Label x:Name="lblTitle" Content="Archery Form Analysis" HorizontalAlignment="Left" Margin="40,63,0,0" VerticalAlignment="Top" FontSize="72"/>
 
     </Grid>

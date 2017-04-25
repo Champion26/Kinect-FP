@@ -31,6 +31,9 @@ namespace KinectWPF
 
         public List<Label> LabelTexts;
 
+        public bool developerTools = false;
+
+        public WindowDetails wd;
         
         public MainWindow()
         {
@@ -42,16 +45,31 @@ namespace KinectWPF
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            this.SizeToContent = SizeToContent.WidthAndHeight;
+            //this.SizeToContent = SizeToContent.WidthAndHeight;
+
+            wd = new WindowDetails(0,0);
+
+            if (!developerTools)
+            {
+                lblHeight.Visibility = System.Windows.Visibility.Hidden;
+                lblWidth.Visibility = System.Windows.Visibility.Hidden;
+
+            }
+
+            stream = new Streaming();
+
+            stream.CreateCameraDetailsReference(ref wd);
 
          
-            
-            stream = new Streaming();
             stream.checkAndRunSensor(canvas,
                                      camera,
                                      this.txtInfo,
-                                     this.btnAnalysis);
+                                     this.btnAnalysis,
+                                     this,
+                                     wd);
             handSet(Streaming.HandPreference.Right);
+
+            
 
             populateLists();
             ChangeJointColour(Brushes.DeepSkyBlue);
@@ -75,6 +93,14 @@ namespace KinectWPF
         {
             if (stream != null)
             {
+                if (!stream.OffsetsGenerated)
+                {
+                    wd.originalHeight = camera.ActualHeight;
+                    wd.originalWidth = camera.ActualWidth;
+                    stream.GenerateOffsets();
+                }
+                
+
                 if (!stream.bodyOn)
                 {
                     Dispatcher.Invoke(() =>
@@ -280,12 +306,17 @@ namespace KinectWPF
             if (e != null)
             {               
                 TriggerElementResize(e.NewSize.Height, e.NewSize.Width);
+             
+                
             }
 
         }
 
+  
+
         private void camera_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+
             this.controlCanvas.Width = camera.ActualWidth;
             this.controlCanvas.Height = camera.ActualHeight;
             txtInfo.Width = camera.ActualWidth / 3.11;
@@ -297,7 +328,16 @@ namespace KinectWPF
                 this.lblJointColour.FontSize = txtInfo.FontSize / 2;
             }
 
+            if (wd != null)
+            {
+                lblWidth.Content = String.Format("Width: {0}", Math.Round(camera.ActualWidth, 2));
+                lblHeight.Content = String.Format("Height: {0}", Math.Round(camera.ActualHeight, 2));
+
+            }
+
         }
+
+      
 
         private void controlCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
         {         
@@ -321,6 +361,59 @@ namespace KinectWPF
 
         }
 
+        private void camera_Loaded(object sender, RoutedEventArgs e)
+        {
+            
+        }
 
+        private void camera_SourceUpdated(object sender, DataTransferEventArgs e)
+        {
+          
+        }
+
+        private void camera_TargetUpdated(object sender, DataTransferEventArgs e)
+        {
+           
+        }
+
+
+    }
+
+    public class WindowDetails
+    {
+        public double originalHeight
+        {
+            get
+            {
+                return _originalHeight;
+            }
+            set
+            {
+                _originalHeight = value;
+            }
+        }
+
+        private double _originalHeight;
+
+        private double _originalWidth;
+
+        public double originalWidth
+        {
+            get
+            {
+                return _originalWidth;
+            }
+            set
+            {
+                _originalWidth = value;
+            }
+        }
+
+        public WindowDetails(double width, double height)
+        {
+            originalWidth = width;
+            originalHeight = height;
+        }
+     
     }
 }
